@@ -11,3 +11,7 @@ node_modules/
 npm-debug.log*
 .env
 .env.production
+
+# тимчасові файли та документація розробки
+temp/
+docs/
