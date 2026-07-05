@@ -1,0 +1,13 @@
+# збірка
+dist/
+.astro/
+
+# залежності
+node_modules/
+
+# службові файли
+.DS_Store
+*.log
+npm-debug.log*
+.env
+.env.production

@@ -1,0 +1,165 @@
+---
+interface Props {
+  /** Тека з кадрами всередині public/spin/ (наприклад «vedmedyk-tymko»). */
+  dir: string;
+  /** Кількість кадрів. */
+  frames?: number;
+  /** Підпис для доступності. */
+  alt: string;
+}
+
+const { dir, frames = 24, alt } = Astro.props;
+const base = `/spin/${dir}`;
+---
+
+<div class="spin" data-spin data-base={base} data-frames={frames}>
+  <div class="spin-stage" role="img" aria-label={`Обертання іграшки: ${alt}`}>
+    <img class="spin-img" alt={alt} draggable="false" />
+    <div class="spin-loader" data-loader>
+      <span class="spin-spinner" aria-hidden="true"></span>
+      <span>Завантаження…</span>
+    </div>
+    <div class="spin-hint" data-hint>
+      <span aria-hidden="true">↔</span> Покрутіть мене
+    </div>
+  </div>
+</div>
+
+<script>
+  function initSpin(el: HTMLElement) {
+    const base = el.dataset.base!;
+    const frames = Number(el.dataset.frames) || 24;
+    const img = el.querySelector<HTMLImageElement>('.spin-img')!;
+    const loader = el.querySelector<HTMLElement>('[data-loader]')!;
+    const hint = el.querySelector<HTMLElement>('[data-hint]')!;
+    const stage = el.querySelector<HTMLElement>('.spin-stage')!;
+
+    const urls = Array.from(
+      { length: frames },
+      (_, i) => `${base}/frame-${String(i + 1).padStart(2, '0')}.webp`,
+    );
+
+    let loaded = 0;
+    urls.forEach((url) => {
+      const im = new Image();
+      im.onload = im.onerror = () => {
+        if (++loaded === frames) loader.style.display = 'none';
+      };
+      im.src = url;
+    });
+
+    let index = 0;
+    let dragging = false;
+    let startX = 0;
+    let startIndex = 0;
+    let interacted = false;
+
+    const show = (i: number) => {
+      index = ((i % frames) + frames) % frames;
+      img.src = urls[index];
+    };
+    show(0);
+
+    const begin = (x: number) => {
+      dragging = true;
+      startX = x;
+      startIndex = index;
+      if (!interacted) {
+        interacted = true;
+        hint.style.opacity = '0';
+      }
+    };
+    const move = (x: number) => {
+      if (!dragging) return;
+      const pxPerFrame = Math.max(4, stage.clientWidth / frames);
+      show(startIndex - Math.round((x - startX) / pxPerFrame));
+    };
+    const end = () => {
+      dragging = false;
+    };
+
+    stage.addEventListener('pointerdown', (e) => {
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+      begin(e.clientX);
+    });
+    stage.addEventListener('pointermove', (e) => move(e.clientX));
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    stage.addEventListener('pointerleave', end);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-spin]').forEach(initSpin);
+</script>
+
+<style>
+  .spin {
+    width: 100%;
+  }
+  .spin-stage {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .spin-stage:active {
+    cursor: grabbing;
+  }
+  .spin-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  .spin-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    background: var(--color-surface);
+  }
+  .spin-spinner {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--color-line);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin-rotate 0.8s linear infinite;
+  }
+  @keyframes spin-rotate {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .spin-hint {
+    position: absolute;
+    bottom: 0.9rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: color-mix(in srgb, var(--color-text) 82%, transparent);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spin-spinner {
+      animation: none;
+    }
+  }
+</style>

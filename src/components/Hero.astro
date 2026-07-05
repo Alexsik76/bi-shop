@@ -1,0 +1,55 @@
+---
+import OrderButton from './OrderButton.astro';
+---
+
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <p class="eyebrow">Ручна робота · натуральні матеріали</p>
+      <h1>Теплі в'язані іграшки,<br />створені з любов’ю</h1>
+      <p class="hero-lead">
+        Кожна іграшка народжується під руками майстрині — від першої петельки
+        до останнього вузлика. М’які, безпечні й теплі, як бабусині обійми.
+      </p>
+      <div class="hero-actions">
+        <a href="#katalog" class="btn btn-primary">Переглянути каталог</a>
+        <OrderButton label="Написати в Telegram" variant="outline" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: clamp(2.5rem, 7vw, 5rem);
+    overflow: hidden;
+    background-image: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--color-bg) 82%, transparent),
+        color-mix(in srgb, var(--color-bg) 82%, transparent)
+      ),
+      url('/background.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+  .hero-inner {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  .hero-lead {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    max-width: 42ch;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .hero-text {
+    max-width: 60ch;
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+import { site } from '../config';
+
+const year = new Date().getFullYear();
+
+const contacts = [
+  { label: 'Телефон', value: site.phoneDisplay, href: `tel:${site.phone}` },
+  { label: 'Telegram', value: `@${site.telegram}`, href: `https://t.me/${site.telegram}` },
+  { label: 'Viber', value: site.phoneDisplay, href: `viber://chat?number=${site.viber}` },
+  { label: 'Instagram', value: `@${site.instagram}`, href: `https://instagram.com/${site.instagram}` },
+];
+---
+
+<footer id="kontakty" class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <span class="footer-name">{site.name}</span>
+      <p>{site.tagline}. {site.location}.</p>
+    </div>
+
+    <div class="footer-contacts">
+      <h3>Контакти</h3>
+      <ul>
+        {contacts.map((c) => (
+          <li>
+            <span class="c-label">{c.label}:</span>
+            <a href={c.href} target="_blank" rel="noopener noreferrer">{c.value}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <p>© {year} {site.name}. Усі права захищені.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-text);
+    color: #f2e9df;
+    margin-top: auto;
+  }
+  .footer-inner {
+    display: grid;
+    gap: 2rem;
+    padding-block: 3rem;
+  }
+  .footer-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #fff;
+  }
+  .footer-brand p {
+    color: #c9bcae;
+    margin-top: 0.4rem;
+  }
+
+  .footer-contacts h3 {
+    color: #fff;
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+  }
+  .footer-contacts ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  .c-label {
+    color: #c9bcae;
+    margin-right: 0.4rem;
+  }
+  .footer-contacts a {
+    color: #f2e9df;
+  }
+  .footer-contacts a:hover {
+    color: var(--color-secondary);
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-block: 1.25rem;
+    font-size: 0.85rem;
+  }
+  .footer-bottom p {
+    margin: 0;
+    color: #c9bcae;
+  }
+
+  @media (min-width: 640px) {
+    .footer-inner {
+      grid-template-columns: 1.2fr 1fr;
+    }
+  }
+</style>

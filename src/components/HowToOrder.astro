@@ -1,0 +1,94 @@
+---
+import OrderButton from './OrderButton.astro';
+
+const steps = [
+  {
+    n: '01',
+    title: 'Оберіть іграшку',
+    text: 'Перегляньте каталог і відкрийте сторінку іграшки, яка сподобалася. Роздивіться її з усіх боків завдяки обертанню на 360°.',
+  },
+  {
+    n: '02',
+    title: 'Напишіть у месенджер',
+    text: 'Натисніть «Замовити» — відкриється Telegram із готовим повідомленням. Уточнимо наявність, кольори та деталі оформлення.',
+  },
+  {
+    n: '03',
+    title: 'Отримайте посилку',
+    text: 'Надсилаємо Новою поштою по всій Україні. Іграшки в наявності відправляємо наступного дня, замовні — за 5–7 днів.',
+  },
+];
+---
+
+<section id="yak-zamovyty" class="section how">
+  <div class="container">
+    <div class="how-head">
+      <p class="eyebrow">Як замовити</p>
+      <h2>Три прості кроки</h2>
+    </div>
+
+    <ol class="steps">
+      {steps.map((step) => (
+        <li class="step">
+          <span class="step-num">{step.n}</span>
+          <h3>{step.title}</h3>
+          <p>{step.text}</p>
+        </li>
+      ))}
+    </ol>
+
+    <div class="how-cta">
+      <OrderButton label="Замовити в Telegram" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .how {
+    background: color-mix(in srgb, var(--color-secondary) 12%, var(--color-bg));
+  }
+  .how-head {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .steps {
+    list-style: none;
+    counter-reset: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .step {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    position: relative;
+  }
+  .step-num {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+  .step h3 {
+    margin-bottom: 0.4rem;
+  }
+  .step p {
+    margin: 0;
+    color: var(--color-muted);
+  }
+  .how-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    .steps {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

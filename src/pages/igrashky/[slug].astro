@@ -1,0 +1,181 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Spin360 from '../../components/Spin360.astro';
+import Gallery from '../../components/Gallery.astro';
+import OrderButton from '../../components/OrderButton.astro';
+
+export async function getStaticPaths() {
+  const toys = await getCollection('igrashky');
+  return toys.map((toy) => ({
+    params: { slug: toy.data.slug },
+    props: { toy },
+  }));
+}
+
+interface Props {
+  toy: CollectionEntry<'igrashky'>;
+}
+
+const { toy } = Astro.props;
+const { title, price, size, materials, status, cover, spinFrames, spinDir, gallery } =
+  toy.data;
+const { Content } = await render(toy);
+
+const statusMeta = {
+  available: { label: 'В наявності', kind: 'available' },
+  'made-to-order': { label: 'Під замовлення', kind: 'made-to-order' },
+  sold: { label: 'Продано', kind: 'sold' },
+} as const;
+const badge = statusMeta[status];
+const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
+
+// Зображення для Open Graph.
+const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp' });
+---
+
+<BaseLayout
+  title={title}
+  description={`${title} — м’яка іграшка ручної роботи, ${size}. Матеріали: ${materials}. Ціна ${priceFormatted} грн.`}
+  ogImage={og.src}
+>
+  <article class="section product">
+    <div class="container">
+      <p class="crumbs"><a href="/#katalog">← До каталогу</a></p>
+
+      <div class="product-grid">
+        <div class="product-media">
+  {spinDir ? (
+    <Spin360 dir={spinDir} frames={spinFrames} alt={title} />
+  ) : (
+    <Image
+      src={cover}
+      alt={title}
+      width={800}
+      height={800}
+      format="webp"
+    />
+  )}
+  <div class="product-gallery">
+    <Gallery images={gallery} alt={title} />
+  </div>
+</div>
+
+        <div class="product-info">
+          <span class={`badge badge-${badge.kind}`}>{badge.label}</span>
+          <h1>{title}</h1>
+          <p class="product-price">{priceFormatted} грн</p>
+
+          <dl class="specs">
+            <div><dt>Розмір</dt><dd>{size}</dd></div>
+            <div><dt>Матеріали</dt><dd>{materials}</dd></div>
+          </dl>
+
+          <div class="product-desc">
+            <Content />
+          </div>
+
+          {status === 'sold' ? (
+            <p class="sold-note">
+              Ця іграшка вже знайшла свою домівку. Проте ми можемо зв'язати схожу на замовлення спицями: колір пряжі та деталі узгоджуємо окремо.
+            </p>
+          ) : null}
+
+          {status === 'made-to-order' ? (
+            <p class="sold-note">
+              Ця іграшка в'яжеться під замовлення. Ми зв'яжемо її спеціально для вас спицями: колір пряжі та деталі узгоджуємо окремо.
+            </p>
+          ) : null}
+
+          <OrderButton toyTitle={title} label="Замовити цю іграшку" />
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .crumbs {
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+  .product-grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .product-gallery {
+    margin-top: 1rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.32rem 0.8rem;
+    border-radius: 999px;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+  .badge-available {
+    background: #6f9a5e;
+  }
+  .badge-made-to-order {
+    background: var(--color-secondary);
+    color: var(--color-text);
+  }
+  .badge-sold {
+    background: var(--color-muted);
+  }
+
+  .product-price {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.9rem;
+    color: var(--color-accent);
+    margin: 0 0 1.25rem;
+  }
+
+  .specs {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem;
+    padding: 1.25rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+  }
+  .specs div {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 0.5rem;
+  }
+  .specs dt {
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+  .specs dd {
+    margin: 0;
+  }
+
+  .product-desc {
+    margin-bottom: 1.5rem;
+  }
+
+  .sold-note {
+    background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-bg));
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1.1rem;
+    color: var(--color-text);
+  }
+
+  @media (min-width: 1024px) {
+    .product-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+  }
+</style>

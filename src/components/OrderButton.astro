@@ -1,0 +1,35 @@
+---
+import { site } from '../config';
+
+interface Props {
+  /** Назва іграшки. Якщо не задано — загальне звернення. */
+  toyTitle?: string;
+  /** Напис на кнопці. */
+  label?: string;
+  /** Стиль кнопки. */
+  variant?: 'primary' | 'outline';
+  class?: string;
+}
+
+const {
+  toyTitle,
+  label = 'Замовити',
+  variant = 'primary',
+  class: className = '',
+} = Astro.props;
+
+const message = toyTitle
+  ? `Доброго дня! Хочу замовити іграшку "${toyTitle}"`
+  : 'Доброго дня! Хочу замовити іграшку';
+
+const href = `https://t.me/${site.telegram}?text=${encodeURIComponent(message)}`;
+---
+
+<a
+  href={href}
+  class={`btn btn-${variant} ${className}`}
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  {label}
+</a>
