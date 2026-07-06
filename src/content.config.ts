@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { DEFAULT_SPIN_FRAMES } from './config';
 
 const igrashky = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/igrashky' }),
@@ -20,7 +21,7 @@ const igrashky = defineCollection({
       /** Головне фото 1:1 для картки та сторінки. */
       cover: image(),
       /** Кількість кадрів обертання. */
-      spinFrames: z.number().default(24),
+      spinFrames: z.number().default(DEFAULT_SPIN_FRAMES),
       /** Тека з кадрами обертання всередині public/spin/. */
       spinDir: z.string().optional(),
       /** Додаткові фото галереї. */

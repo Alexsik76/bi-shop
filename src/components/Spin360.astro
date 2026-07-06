@@ -1,4 +1,6 @@
 ---
+import { DEFAULT_SPIN_FRAMES } from '../config';
+
 interface Props {
   /** Тека з кадрами всередині public/spin/ (наприклад «vedmedyk-tymko»). */
   dir: string;
@@ -6,15 +8,33 @@ interface Props {
   frames?: number;
   /** Підпис для доступності. */
   alt: string;
+  /** Оптимізований постер. */
+  poster: {
+    src: string;
+    width: number;
+    height: number;
+  };
 }
 
-const { dir, frames = 24, alt } = Astro.props;
+const { dir, frames = DEFAULT_SPIN_FRAMES, alt, poster } = Astro.props;
 const base = `/spin/${dir}`;
 ---
 
 <div class="spin" data-spin data-base={base} data-frames={frames}>
-  <div class="spin-stage" role="img" aria-label={`Обертання іграшки: ${alt}`}>
-    <img class="spin-img" alt={alt} draggable="false" />
+  <div
+    class="spin-stage"
+    tabindex="0"
+    role="region"
+    aria-label={`Обертання іграшки: ${alt}. Використовуйте стрілки вліво та вправо`}
+  >
+    <img
+      class="spin-img"
+      src={poster.src}
+      width={poster.width}
+      height={poster.height}
+      alt={alt}
+      draggable="false"
+    />
     <div class="spin-loader" data-loader>
       <span class="spin-spinner" aria-hidden="true"></span>
       <span>Завантаження…</span>
@@ -26,41 +46,70 @@ const base = `/spin/${dir}`;
 </div>
 
 <script>
+  import { DEFAULT_SPIN_FRAMES } from '../config';
+
   function initSpin(el: HTMLElement) {
     const base = el.dataset.base!;
-    const frames = Number(el.dataset.frames) || 24;
+    const frames = Number(el.dataset.frames) || DEFAULT_SPIN_FRAMES;
     const img = el.querySelector<HTMLImageElement>('.spin-img')!;
     const loader = el.querySelector<HTMLElement>('[data-loader]')!;
     const hint = el.querySelector<HTMLElement>('[data-hint]')!;
     const stage = el.querySelector<HTMLElement>('.spin-stage')!;
 
+    const pad = Math.max(2, String(frames).length);
     const urls = Array.from(
       { length: frames },
-      (_, i) => `${base}/frame-${String(i + 1).padStart(2, '0')}.webp`,
+      (_, i) => `${base}/frame-${String(i + 1).padStart(pad, '0')}.webp`,
     );
 
     let loaded = 0;
-    urls.forEach((url) => {
-      const im = new Image();
-      im.onload = im.onerror = () => {
-        if (++loaded === frames) loader.style.display = 'none';
-      };
-      im.src = url;
-    });
-
-    let index = 0;
+    let loadingStarted = false;
     let dragging = false;
     let startX = 0;
     let startIndex = 0;
     let interacted = false;
+    let index = 0;
 
     const show = (i: number) => {
       index = ((i % frames) + frames) % frames;
       img.src = urls[index];
     };
-    show(0);
+
+    function startPreloading() {
+      if (loadingStarted) return;
+      loadingStarted = true;
+
+      loader.classList.add('is-loading');
+
+      urls.forEach((url) => {
+        const im = new Image();
+        im.onload = im.onerror = () => {
+          if (++loaded === frames) {
+            loader.classList.remove('is-loading');
+            loader.style.display = 'none';
+            show(0);
+          }
+        };
+        im.src = url;
+      });
+    }
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            startPreloading();
+            obs.unobserve(el);
+          }
+        });
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(el);
 
     const begin = (x: number) => {
+      if (loaded < frames) return;
       dragging = true;
       startX = x;
       startIndex = index;
@@ -86,6 +135,26 @@ const base = `/spin/${dir}`;
     stage.addEventListener('pointerup', end);
     stage.addEventListener('pointercancel', end);
     stage.addEventListener('pointerleave', end);
+
+    stage.addEventListener('keydown', (e) => {
+      if (loaded < frames) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        show(index - 1);
+        if (!interacted) {
+          interacted = true;
+          hint.style.opacity = '0';
+        }
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        show(index + 1);
+        if (!interacted) {
+          interacted = true;
+          hint.style.opacity = '0';
+        }
+      }
+    });
   }
 
   document.querySelectorAll<HTMLElement>('[data-spin]').forEach(initSpin);
@@ -109,6 +178,10 @@ const base = `/spin/${dir}`;
   .spin-stage:active {
     cursor: grabbing;
   }
+  .spin-stage:focus-visible {
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 2px;
+  }
   .spin-img {
     width: 100%;
     height: 100%;
@@ -118,20 +191,31 @@ const base = `/spin/${dir}`;
 
   .spin-loader {
     position: absolute;
-    inset: 0;
+    top: 1rem;
+    right: 1rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    color: var(--color-muted);
-    font-size: 0.9rem;
-    background: var(--color-surface);
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    box-shadow: var(--shadow);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .spin-loader.is-loading {
+    opacity: 1;
+    visibility: visible;
   }
   .spin-spinner {
-    width: 28px;
-    height: 28px;
-    border: 3px solid var(--color-line);
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--color-line);
     border-top-color: var(--color-accent);
     border-radius: 50%;
     animation: spin-rotate 0.8s linear infinite;

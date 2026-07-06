@@ -34,6 +34,9 @@ const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
 
 // Зображення для Open Graph.
 const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp' });
+
+// Постер для 3D-обертання.
+const poster = await getImage({ src: cover, width: 800, height: 800, format: 'webp' });
 ---
 
 <BaseLayout
@@ -48,7 +51,16 @@ const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp
       <div class="product-grid">
         <div class="product-media">
   {spinDir ? (
-    <Spin360 dir={spinDir} frames={spinFrames} alt={title} />
+    <Spin360
+      dir={spinDir}
+      frames={spinFrames}
+      alt={title}
+      poster={{
+        src: poster.src,
+        width: Number(poster.attributes.width ?? 800),
+        height: Number(poster.attributes.height ?? 800),
+      }}
+    />
   ) : (
     <Image
       src={cover}
