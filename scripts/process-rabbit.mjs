@@ -32,13 +32,13 @@ async function run() {
 
   // 2. Вирізаємо текст із temp/ico/stacked-transparent.png (нижня частина)
   try {
-    // Використовуємо точні безпечні координати для текстового блоку без використання trim()
+    // Використовуємо точні безпечні координати для текстового блоку, включаючи верхню ниткову частину літери Б
     const textBuffer = await sharp('temp/ico/stacked-transparent.png')
       .extract({
-        left: 30,
-        top: 470,
-        width: 700,
-        height: 260
+        left: 20,
+        top: 375,
+        width: 720,
+        height: 385
       })
       .png()
       .toBuffer();
