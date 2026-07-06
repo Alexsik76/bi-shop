@@ -1,10 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#FAF6F0"/>
-  <circle cx="21" cy="20" r="8" fill="#B98B5E"/>
-  <circle cx="43" cy="20" r="8" fill="#B98B5E"/>
-  <circle cx="32" cy="34" r="18" fill="#C4674A"/>
-  <circle cx="25" cy="31" r="2.6" fill="#4A3B32"/>
-  <circle cx="39" cy="31" r="2.6" fill="#4A3B32"/>
-  <ellipse cx="32" cy="37" rx="3.4" ry="2.6" fill="#4A3B32"/>
-  <path d="M27 43 Q32 47 37 43" stroke="#4A3B32" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Вуха кролика -->
+  <path d="M 23 24 C 15 12 18 2 24 2 C 28 2 29 12 28 24 Z" fill="#b55539"/>
+  <path d="M 39 24 C 47 12 44 2 38 2 C 34 2 33 12 34 24 Z" fill="#b55539"/>
+  
+  <!-- Тіло кролика -->
+  <path d="M 24 32 C 16 38 12 46 12 56 C 12 60 16 62 31 62 C 46 62 50 60 50 56 C 50 46 46 38 38 32 Z" fill="#b55539"/>
+  
+  <!-- Голова кролика -->
+  <circle cx="31" cy="28" r="10" fill="#b55539"/>
+  
+  <!-- Очі -->
+  <circle cx="27" cy="27" r="1.5" fill="#4a3b32"/>
+  <circle cx="35" cy="27" r="1.5" fill="#4a3b32"/>
+  
+  <!-- Ніс -->
+  <polygon points="29.5,31 32.5,31 31,32.5" fill="#4a3b32"/>
+
+  <!-- Клубок ниток біля лівої лапи -->
+  <circle cx="48" cy="52" r="8" fill="#d9a441"/>
+  <!-- Текстурні лінії клубка ниток -->
+  <path d="M 43 50 Q 48 46 53 50" stroke="#4a3b32" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M 44 54 Q 48 50 52 54" stroke="#4a3b32" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  <path d="M 47 45 Q 51 52 47 57" stroke="#4a3b32" stroke-width="1.2" fill="none" stroke-linecap="round"/>
 </svg>

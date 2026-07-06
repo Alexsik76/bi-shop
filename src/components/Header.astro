@@ -1,6 +1,8 @@
 ---
 import { site } from '../config';
 import OrderButton from './OrderButton.astro';
+import { Image } from 'astro:assets';
+import logoImg from '../assets/logo-horizontal.png';
 
 const nav = [
   { href: '/#katalog', label: 'Каталог' },
@@ -13,8 +15,7 @@ const nav = [
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="brand">
-      <span class="brand-name">{site.name}</span>
-      <span class="brand-tagline">{site.tagline}</span>
+      <Image src={logoImg} width={187} height={44} alt={site.name} loading="eager" class="brand-logo" />
     </a>
 
     <nav aria-label="Основна навігація">
@@ -91,22 +92,16 @@ const nav = [
 
   .brand {
     display: flex;
-    flex-direction: column;
-    line-height: 1.1;
+    align-items: center;
   }
   .brand:hover {
     text-decoration: none;
   }
-  .brand-name {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--color-text);
-  }
-  .brand-tagline {
-    font-size: 0.72rem;
-    color: var(--color-muted);
-    letter-spacing: 0.02em;
+  .brand-logo {
+    display: block;
+    height: 44px;
+    width: auto;
+    max-width: 100%;
   }
 
   .nav-list {
