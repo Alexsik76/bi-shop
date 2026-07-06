@@ -1,10 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+import rabbitImg from '../assets/hero-rabbit.png';
 ---
 
 <BaseLayout title="Сторінку не знайдено">
   <section class="section error-page">
     <div class="container error-container">
+      <div class="error-illustration">
+        <Image
+          src={rabbitImg}
+          width={300}
+          height={324}
+          alt="В'язаний заєць із клубком пряжі"
+          loading="lazy"
+          decoding="async"
+          class="error-img"
+        />
+      </div>
       <span class="error-code">404</span>
       <h1>Сторінку не знайдено</h1>
       <p class="error-lead">
@@ -27,15 +40,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     max-width: 480px;
     margin: 0 auto;
   }
+  .error-illustration {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  .error-img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
+  }
   .error-code {
     display: block;
     font-family: var(--font-heading);
-    font-size: clamp(4rem, 12vw, 7rem);
+    font-size: clamp(3rem, 10vw, 5rem);
     font-weight: 700;
     line-height: 1;
     color: var(--color-accent);
     opacity: 0.8;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
   .error-lead {
     color: var(--color-muted);

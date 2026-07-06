@@ -1,22 +1,10 @@
 ---
-import { getImage } from 'astro:assets';
-import bgImageSrc from '../assets/background.jpg';
+import { Image } from 'astro:assets';
+import rabbitImg from '../assets/hero-rabbit.png';
 import OrderButton from './OrderButton.astro';
-
-interface Props {
-  bgImage?: string;
-}
-
-const { bgImage } = Astro.props;
-
-let bgUrl = bgImage;
-if (!bgUrl) {
-  const optimizedBg = await getImage({ src: bgImageSrc, width: 1920, quality: 75, format: 'webp' });
-  bgUrl = optimizedBg.src;
-}
 ---
 
-<section class="hero" style={`--bg-image: url('${bgUrl}')`}>
+<section class="hero">
   <div class="container hero-inner">
     <div class="hero-text">
       <p class="eyebrow">Ручна робота · натуральні матеріали</p>
@@ -30,6 +18,18 @@ if (!bgUrl) {
         <OrderButton label="Написати в Telegram" variant="outline" />
       </div>
     </div>
+
+    <div class="hero-illustration">
+      <Image
+        src={rabbitImg}
+        width={389}
+        height={420}
+        alt="В'язаний заєць із клубком пряжі"
+        loading="eager"
+        fetchpriority="high"
+        class="hero-img"
+      />
+    </div>
   </div>
 </section>
 
@@ -37,19 +37,15 @@ if (!bgUrl) {
   .hero {
     padding-block: clamp(2.5rem, 7vw, 5rem);
     overflow: hidden;
-    background-image: linear-gradient(
-        to bottom,
-        color-mix(in srgb, var(--color-bg) 82%, transparent),
-        color-mix(in srgb, var(--color-bg) 82%, transparent)
-      ),
-      var(--bg-image);
-    background-size: cover;
-    background-position: center;
+    background: var(--color-bg);
   }
   .hero-inner {
     display: grid;
-    gap: 2rem;
+    gap: 2.5rem;
     align-items: center;
+  }
+  .hero-text {
+    max-width: 60ch;
   }
   .hero-lead {
     color: var(--color-muted);
@@ -62,8 +58,27 @@ if (!bgUrl) {
     gap: 0.75rem;
     margin-top: 1.5rem;
   }
+  .hero-illustration {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .hero-img {
+    display: block;
+    max-height: 260px;
+    width: auto;
+    height: auto;
+    mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
+    -webkit-mask-image: radial-gradient(circle, rgba(0, 0, 0, 1) 78%, rgba(0, 0, 0, 0) 100%);
+  }
 
-  .hero-text {
-    max-width: 60ch;
+  @media (min-width: 1024px) {
+    .hero-inner {
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 4rem;
+    }
+    .hero-img {
+      max-height: 420px;
+    }
   }
 </style>
