@@ -18,7 +18,10 @@ const nav = [
     </a>
 
     <nav aria-label="Основна навігація">
-      <ul class="nav-list">
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-menu" aria-label="Відкрити меню">
+        <span class="hamburger"></span>
+      </button>
+      <ul class="nav-list" id="nav-menu">
         {nav.map((item) => (
           <li><a href={item.href}>{item.label}</a></li>
         ))}
@@ -28,6 +31,27 @@ const nav = [
     <OrderButton label="Замовити" class="header-cta" />
   </div>
 </header>
+
+<script>
+  const toggle = document.querySelector('.menu-toggle');
+  const menu = document.querySelector('.nav-list');
+
+  if (toggle && menu) {
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!isOpen));
+      menu.classList.toggle('is-open');
+    });
+
+    const links = menu.querySelectorAll('a');
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        toggle.setAttribute('aria-expanded', 'false');
+        menu.classList.remove('is-open');
+      });
+    });
+  }
+</script>
 
 <style>
   .site-header {
@@ -83,6 +107,57 @@ const nav = [
     text-decoration: none;
   }
 
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    padding: 0.6rem;
+    cursor: pointer;
+    z-index: 100;
+  }
+
+  .hamburger {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--color-text);
+    position: relative;
+    transition: background 0.2s ease;
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 20px;
+    height: 2px;
+    background: var(--color-text);
+    transition: transform 0.2s ease, top 0.2s ease;
+  }
+
+  .hamburger::before {
+    top: -6px;
+  }
+
+  .hamburger::after {
+    top: 6px;
+  }
+
+  .menu-toggle[aria-expanded="true"] .hamburger {
+    background: transparent;
+  }
+
+  .menu-toggle[aria-expanded="true"] .hamburger::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded="true"] .hamburger::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
   .header-cta {
     padding: 0.55rem 1.1rem;
     font-size: 0.9rem;
@@ -95,6 +170,28 @@ const nav = [
   }
 
   @media (max-width: 639px) {
+    .menu-toggle {
+      display: block;
+    }
+
+    .nav-list {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--color-surface);
+      border-bottom: 1px solid var(--color-line);
+      padding: 1.5rem;
+      gap: 1.25rem;
+      box-shadow: 0 10px 20px rgba(74, 59, 50, 0.06);
+    }
+
+    .nav-list.is-open {
+      display: flex;
+    }
+
     .header-cta {
       display: none;
     }
