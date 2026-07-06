@@ -93,15 +93,21 @@ const nav = [
   .brand {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
   .brand:hover {
     text-decoration: none;
   }
   .brand-logo {
     display: block;
-    height: 44px;
+    height: 36px;
     width: auto;
-    max-width: 100%;
+  }
+
+  @media (min-width: 420px) {
+    .brand-logo {
+      height: 44px;
+    }
   }
 
   .nav-list {
