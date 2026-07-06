@@ -1,5 +1,4 @@
 import sharp from 'sharp';
-import fs from 'fs';
 
 async function run() {
   console.log('Starting asset processing...');
@@ -30,29 +29,7 @@ async function run() {
     console.error('Error processing Ico_new.png:', e);
   }
 
-  // 2. Вирізаємо текст із temp/ico/stacked-transparent.png (нижня частина)
-  try {
-    // Використовуємо точні безпечні координати для текстового блоку, включаючи верхню ниткову частину літери Б
-    const textBuffer = await sharp('temp/ico/stacked-transparent.png')
-      .extract({
-        left: 20,
-        top: 375,
-        width: 720,
-        height: 385
-      })
-      .png()
-      .toBuffer();
-
-    const textMeta = await sharp(textBuffer).metadata();
-    console.log(`Extracted brand text dimensions: ${textMeta.width}x${textMeta.height}`);
-    
-    fs.writeFileSync('temp/og-text.png', textBuffer);
-    console.log('Saved temp/og-text.png');
-  } catch (e) {
-    console.error('Error extracting text from stacked logo:', e);
-  }
-
-  // 3. Збираємо og-default.png (1200x630)
+  // 2. Збираємо og-default.png (1200x630): кролик зліва, текст справа
   try {
     const rabbitResized = await sharp('src/assets/hero-rabbit.png')
       .resize({ height: 520, fit: 'inside' })
@@ -60,11 +37,11 @@ async function run() {
     const rabbitMeta = await sharp(rabbitResized).metadata();
 
     const textResized = await sharp('temp/og-text.png')
-      .resize({ width: 520, fit: 'inside' })
+      .resize({ width: 480, fit: 'inside' })
       .toBuffer();
     const textMeta = await sharp(textResized).metadata();
 
-    // Розраховуємо центри для лівої та правої половин
+    // Розраховуємо центри для лівої (600px) та правої (600px) половин
     const rabbitX = Math.round(300 - (rabbitMeta.width / 2));
     const rabbitY = Math.round(315 - (rabbitMeta.height / 2));
 
@@ -86,7 +63,7 @@ async function run() {
     .png()
     .toFile('public/og-default.png');
 
-    console.log('Successfully generated public/og-default.png');
+    console.log('Successfully generated public/og-default.png combining new rabbit and clean text');
   } catch (e) {
     console.error('Error generating OG image:', e);
   }
