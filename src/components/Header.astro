@@ -35,8 +35,14 @@ const nav = [
 <script>
   const toggle = document.querySelector('.menu-toggle');
   const menu = document.querySelector('.nav-list');
+  const header = document.querySelector('.site-header');
 
   if (toggle && menu) {
+    const closeMenu = () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.classList.remove('is-open');
+    };
+
     toggle.addEventListener('click', () => {
       const isOpen = toggle.getAttribute('aria-expanded') === 'true';
       toggle.setAttribute('aria-expanded', String(!isOpen));
@@ -45,10 +51,22 @@ const nav = [
 
     const links = menu.querySelectorAll('a');
     links.forEach(link => {
-      link.addEventListener('click', () => {
-        toggle.setAttribute('aria-expanded', 'false');
-        menu.classList.remove('is-open');
-      });
+      link.addEventListener('click', closeMenu);
+    });
+
+    // Закриття по Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
+
+    // Закриття по кліку поза шапкою
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (header && !header.contains(target)) {
+        closeMenu();
+      }
     });
   }
 </script>

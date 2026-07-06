@@ -7,11 +7,12 @@ import Spin360 from '../../components/Spin360.astro';
 import Gallery from '../../components/Gallery.astro';
 import OrderButton from '../../components/OrderButton.astro';
 import { site } from '../../config';
+import { statusMeta } from '../../lib/status';
 
 export async function getStaticPaths() {
   const toys = await getCollection('igrashky');
   return toys.map((toy) => ({
-    params: { slug: toy.data.slug },
+    params: { slug: toy.id },
     props: { toy },
   }));
 }
@@ -25,11 +26,6 @@ const { title, price, size, materials, status, cover, spinFrames, spinDir, galle
   toy.data;
 const { Content } = await render(toy);
 
-const statusMeta = {
-  available: { label: 'В наявності', kind: 'available' },
-  'made-to-order': { label: 'Під замовлення', kind: 'made-to-order' },
-  sold: { label: 'Продано', kind: 'sold' },
-} as const;
 const badge = statusMeta[status];
 const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
 

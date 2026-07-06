@@ -1,19 +1,16 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import { statusMeta } from '../lib/status';
 
 interface Props {
   toy: CollectionEntry<'igrashky'>;
 }
 
 const { toy } = Astro.props;
-const { title, slug, price, size, status, cover } = toy.data;
+const { title, price, size, status, cover } = toy.data;
+const slug = toy.id;
 
-const statusMeta: Record<typeof status, { label: string; kind: string }> = {
-  available: { label: 'В наявності', kind: 'available' },
-  'made-to-order': { label: 'Під замовлення', kind: 'made-to-order' },
-  sold: { label: 'Продано', kind: 'sold' },
-};
 const badge = statusMeta[status];
 const isSold = status === 'sold';
 const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);

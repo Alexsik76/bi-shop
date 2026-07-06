@@ -33,7 +33,7 @@ const contacts = [
 
   <div class="footer-bottom">
     <div class="container">
-      <p>© {year} {site.name}. Усі права захищені.</p>
+      <p>© <span id="current-year">{year}</span> {site.name}. Усі права захищені.</p>
     </div>
   </div>
 </footer>
@@ -99,3 +99,10 @@ const contacts = [
     }
   }
 </style>
+
+<script>
+  const yearSpan = document.getElementById('current-year');
+  if (yearSpan) {
+    yearSpan.textContent = String(new Date().getFullYear());
+  }
+</script>

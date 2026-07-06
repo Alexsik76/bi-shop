@@ -1,6 +1,5 @@
 ---
 title: Заєць
-slug: zayets
 price: 1950
 size: 30 см
 materials: плюш, бавовна, холлофайбер

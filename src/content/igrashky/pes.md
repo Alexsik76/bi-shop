@@ -1,6 +1,5 @@
 ---
 title: Пес
-slug: pes
 price: 1
 size: 27 см
 materials: плюш, холлофайбер

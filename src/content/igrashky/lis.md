@@ -1,6 +1,5 @@
 ---
 title: Лис
-slug: lis
 price: 1850
 size: 29 см
 materials: плюшева пряжа, холлофайбер

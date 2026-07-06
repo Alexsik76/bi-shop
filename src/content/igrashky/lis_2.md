@@ -1,6 +1,5 @@
 ---
 title: Лисеня
-slug: lis_2
 price: 1550
 size: 22 см
 materials: плюш, безпечний пластик

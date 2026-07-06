@@ -1,6 +1,5 @@
 ---
 title: Зайка
-slug: zayka
 price: 1650
 size: 25 см
 materials: плюшева пряжа, холлофайбер

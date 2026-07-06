@@ -1,6 +1,5 @@
 ---
 title: Лисичка
-slug: lisitca
 price: 1800
 size: 28 см
 materials: велюр, холлофайбер

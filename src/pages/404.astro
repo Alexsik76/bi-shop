@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Сторінку не знайдено">
+  <section class="section error-page">
+    <div class="container error-container">
+      <span class="error-code">404</span>
+      <h1>Сторінку не знайдено</h1>
+      <p class="error-lead">
+        На жаль, такої сторінки не існує. Можливо, вона була видалена, або її адреса змінилася.
+      </p>
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">На головну</a>
+        <a href="/#katalog" class="btn btn-outline">До каталогу</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .error-page {
+    padding-block: clamp(3rem, 10vw, 7rem);
+    text-align: center;
+  }
+  .error-container {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .error-code {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: clamp(4rem, 12vw, 7rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-accent);
+    opacity: 0.8;
+    margin-bottom: 1rem;
+  }
+  .error-lead {
+    color: var(--color-muted);
+    margin: 1rem 0 2rem;
+  }
+  .error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+  }
+  .btn-outline:hover {
+    background: var(--color-accent);
+    color: #fff;
+    text-decoration: none;
+  }
+</style>

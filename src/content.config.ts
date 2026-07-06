@@ -8,8 +8,6 @@ const igrashky = defineCollection({
     z.object({
       /** Назва іграшки. */
       title: z.string(),
-      /** Ідентифікатор латиницею для адреси сторінки. */
-      slug: z.string(),
       /** Ціна у гривнях. */
       price: z.number(),
       /** Розмір, наприклад «28 см». */
