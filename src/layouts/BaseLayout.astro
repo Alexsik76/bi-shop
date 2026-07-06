@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../config';
+import { Font } from 'astro:assets';
 
 interface Props {
   title?: string;
@@ -15,6 +16,8 @@ interface Props {
   ogType?: string;
   /** Ціна продукту для OG мета-тегів. */
   productPrice?: number;
+  /** Зображення для передзавантаження (LCP). */
+  preloadImage?: string;
 }
 
 const {
@@ -24,6 +27,7 @@ const {
   schema,
   ogType = 'website',
   productPrice,
+  preloadImage,
 } = Astro.props;
 
 const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
@@ -67,13 +71,13 @@ const ogImageUrl = new URL(ogImage, Astro.site);
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     )}
 
-    <!-- Шрифти Google Fonts з кириличним набором -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=PT+Sans:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    {preloadImage && (
+      <link rel="preload" as="image" href={preloadImage} />
+    )}
+
+    <!-- Самостійно розміщені шрифти через Astro Fonts API -->
+    <Font cssVariable="--font-comfortaa" preload />
+    <Font cssVariable="--font-pt-sans" preload />
   </head>
   <body>
     <a class="skip-link" href="#main">Перейти до вмісту</a>

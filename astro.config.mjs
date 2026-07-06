@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Адресу сайту після розгортання на Cloudflare Pages замініть на власну.
@@ -11,5 +11,21 @@ export default defineConfig({
   image: {
     // Стискання зображень виконує вбудований у Astro sharp.
     responsiveStyles: true,
+  },
+  experimental: {
+    fonts: [
+      {
+        provider: fontProviders.google(),
+        name: 'Comfortaa',
+        cssVariable: '--font-comfortaa',
+        weights: [700],
+      },
+      {
+        provider: fontProviders.google(),
+        name: 'PT Sans',
+        cssVariable: '--font-pt-sans',
+        weights: [400, 700],
+      },
+    ],
   },
 });

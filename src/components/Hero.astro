@@ -1,8 +1,22 @@
 ---
+import { getImage } from 'astro:assets';
+import bgImageSrc from '../assets/background.jpg';
 import OrderButton from './OrderButton.astro';
+
+interface Props {
+  bgImage?: string;
+}
+
+const { bgImage } = Astro.props;
+
+let bgUrl = bgImage;
+if (!bgUrl) {
+  const optimizedBg = await getImage({ src: bgImageSrc, width: 1920, quality: 75, format: 'webp' });
+  bgUrl = optimizedBg.src;
+}
 ---
 
-<section class="hero">
+<section class="hero" style={`--bg-image: url('${bgUrl}')`}>
   <div class="container hero-inner">
     <div class="hero-text">
       <p class="eyebrow">Ручна робота · натуральні матеріали</p>
@@ -28,7 +42,7 @@ import OrderButton from './OrderButton.astro';
         color-mix(in srgb, var(--color-bg) 82%, transparent),
         color-mix(in srgb, var(--color-bg) 82%, transparent)
       ),
-      url('/background.jpg');
+      var(--bg-image);
     background-size: cover;
     background-position: center;
   }

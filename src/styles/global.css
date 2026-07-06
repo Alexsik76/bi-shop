@@ -10,8 +10,8 @@
   --color-line: #e6ddd2;
 
   /* Типографіка */
-  --font-heading: 'Comfortaa', system-ui, sans-serif;
-  --font-body: 'PT Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: var(--font-comfortaa), system-ui, sans-serif;
+  --font-body: var(--font-pt-sans), system-ui, -apple-system, sans-serif;
 
   /* Розміри та ритм */
   --container: 1120px;

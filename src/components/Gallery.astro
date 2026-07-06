@@ -26,6 +26,8 @@ const { images, alt } = Astro.props;
             quality={80}
             class={i === 0 ? 'is-active' : ''}
             data-main-img={i}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            decoding={i === 0 ? 'sync' : 'async'}
           />
         ))}
       </div>
@@ -47,6 +49,8 @@ const { images, alt } = Astro.props;
                   height={140}
                   format="webp"
                   quality={70}
+                  loading="lazy"
+                  decoding="async"
                 />
               </button>
             </li>
