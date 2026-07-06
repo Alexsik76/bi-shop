@@ -105,15 +105,19 @@ const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
     font-size: 1.4rem;
     letter-spacing: 0.08em;
     color: #fff;
-    background: rgba(74, 59, 50, 0.55);
+    background: rgba(74, 59, 50, 0.72);
     text-transform: uppercase;
   }
 
-  .is-sold {
+  .is-sold .card-media :global(img) {
+    filter: grayscale(0.85);
     opacity: 0.55;
   }
-  .is-sold .card-media :global(img) {
-    filter: grayscale(0.7);
+  .is-sold .card-title {
+    color: var(--color-muted);
+  }
+  .is-sold .card-price {
+    color: var(--color-muted);
   }
 
   .card-body {
@@ -122,6 +126,7 @@ const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
   .card-title {
     margin: 0 0 0.2rem;
     font-size: 1.15rem;
+    transition: color 0.15s ease;
   }
   .card-size {
     margin: 0 0 0.5rem;
@@ -134,5 +139,6 @@ const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
     font-weight: 700;
     font-size: 1.2rem;
     color: var(--color-accent);
+    transition: color 0.15s ease;
   }
 </style>
