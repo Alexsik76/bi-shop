@@ -72,7 +72,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     )}
 
     {preloadImage && (
-      <link rel="preload" as="image" href={preloadImage} />
+      <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />
     )}
 
     <!-- Самостійно розміщені шрифти через Astro Fonts API -->
