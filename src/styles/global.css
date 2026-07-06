@@ -4,6 +4,7 @@
   --color-surface: #ffffff;
   --color-accent: #b55539; /* теракотовий */
   --color-accent-dark: #a8543a;
+  --color-accent-deep: #96482f; /* глибокий теракотовий для дрібного тексту */
   --color-secondary: #d9a441; /* гірчичний */
   --color-text: #4a3b32;
   --color-muted: #6b5d4f;
@@ -117,7 +118,7 @@ img {
   font-size: 0.85rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-deep);
   margin: 0 0 0.75rem;
 }
 
