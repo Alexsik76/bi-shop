@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Spin360 from '../../components/Spin360.astro';
 import Gallery from '../../components/Gallery.astro';
 import OrderButton from '../../components/OrderButton.astro';
+import { site } from '../../config';
 
 export async function getStaticPaths() {
   const toys = await getCollection('igrashky');
@@ -37,12 +38,68 @@ const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp
 
 // Постер для 3D-обертання.
 const poster = await getImage({ src: cover, width: 800, height: 800, format: 'webp' });
+
+const metaDescription = `${title} — м’яка іграшка ручної роботи, ${size}. Матеріали: ${materials}. Ціна ${priceFormatted} грн.`;
+
+const absoluteCanonical = new URL(Astro.url.pathname, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
+const absoluteCoverUrl = new URL(og.src, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
+
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": title,
+  "description": metaDescription,
+  "image": absoluteCoverUrl,
+  "material": materials,
+  "size": size,
+  "brand": {
+    "@type": "Brand",
+    "name": site.name
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": price,
+    "priceCurrency": "UAH",
+    "availability": status === 'available'
+      ? "https://schema.org/InStock"
+      : (status === 'made-to-order' ? "https://schema.org/MadeToOrder" : "https://schema.org/SoldOut"),
+    "url": absoluteCanonical,
+    "seller": {
+      "@type": "Organization",
+      "name": site.name
+    }
+  }
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Головна",
+      "item": Astro.site?.toString() ?? "https://babusyni-igrashky.com.ua/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": title,
+      "item": absoluteCanonical
+    }
+  ]
+};
+
+const schemas = [productSchema, breadcrumbSchema];
 ---
 
 <BaseLayout
   title={title}
-  description={`${title} — м’яка іграшка ручної роботи, ${size}. Матеріали: ${materials}. Ціна ${priceFormatted} грн.`}
+  description={metaDescription}
   ogImage={og.src}
+  ogType="product"
+  productPrice={price}
+  schema={schemas}
 >
   <article class="section product">
     <div class="container">

@@ -9,12 +9,21 @@ interface Props {
   description?: string;
   /** Абсолютний або кореневий шлях до OG-зображення. */
   ogImage?: string;
+  /** JSON-LD схема(и) розмітки. */
+  schema?: Record<string, any> | Record<string, any>[];
+  /** Тип OG-об'єкта. */
+  ogType?: string;
+  /** Ціна продукту для OG мета-тегів. */
+  productPrice?: number;
 }
 
 const {
   title,
   description = site.description,
   ogImage = '/og-default.png',
+  schema,
+  ogType = 'website',
+  productPrice,
 } = Astro.props;
 
 const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
@@ -34,7 +43,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="description" content={description} />
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
@@ -42,11 +51,21 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:locale" content="uk_UA" />
 
+    {ogType === 'product' && productPrice !== undefined && (
+      <meta property="product:price:amount" content={String(productPrice)} />
+      <meta property="product:price:currency" content="UAH" />
+    )}
+
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Structured Data (JSON-LD) -->
+    {schema && (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    )}
 
     <!-- Шрифти Google Fonts з кириличним набором -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

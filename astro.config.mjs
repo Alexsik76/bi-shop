@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 // Вона потрібна для карти сайту (sitemap) та абсолютних Open Graph-посилань.
 export default defineConfig({
   site: 'https://babusyni-igrashky.com.ua',
+  trailingSlash: 'always',
   integrations: [sitemap()],
   image: {
     // Стискання зображень виконує вбудований у Astro sharp.
