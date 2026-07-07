@@ -6,19 +6,21 @@ const igrashky = defineCollection({
   schema: ({ image }) =>
     z.object({
       /** Назва іграшки. */
-      title: z.string(),
+      title: z.string().optional(),
       /** Ціна у гривнях. */
-      price: z.number(),
+      price: z.number().optional(),
       /** Розмір, наприклад «28 см». */
-      size: z.string(),
+      size: z.string().optional(),
       /** Матеріали. */
-      materials: z.string(),
+      materials: z.string().optional(),
       /** Наявність. */
-      status: z.enum(['available', 'made-to-order', 'sold']),
+      status: z.enum(['available', 'made-to-order', 'sold']).optional(),
       /** Головне фото 1:1 для картки та сторінки. */
       cover: image(),
       /** Додаткові фото галереї. */
       gallery: z.array(image()).default([]),
+      /** Тека з кадрами обертання. */
+      spinDir: z.string().optional(),
     }),
 });
 

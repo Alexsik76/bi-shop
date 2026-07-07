@@ -8,12 +8,12 @@ interface Props {
 }
 
 const { toy } = Astro.props;
-const { title, price, size, status, cover } = toy.data;
+const { title = 'Без назви', price, size, status = 'available', cover } = toy.data;
 const slug = toy.id;
 
-const badge = statusMeta[status];
+const badge = statusMeta[status] || statusMeta.available;
 const isSold = status === 'sold';
-const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
+const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFormat('uk-UA').format(price) : '';
 ---
 
 <article class={`card ${isSold ? 'is-sold' : ''}`}>
@@ -29,13 +29,13 @@ const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
         format="webp"
         quality={80}
       />
-      <span class={`badge badge-${badge.kind}`}>{badge.label}</span>
+      {badge && <span class={`badge badge-${badge.kind}`}>{badge.label}</span>}
       {isSold && <span class="sold-overlay">Продано</span>}
     </div>
     <div class="card-body">
       <h3 class="card-title">{title}</h3>
-      <p class="card-size">{size}</p>
-      <p class="card-price">{priceFormatted} грн</p>
+      {size && <p class="card-size">{size}</p>}
+      {priceFormatted && <p class="card-price">{priceFormatted} грн</p>}
     </div>
   </a>
 </article>

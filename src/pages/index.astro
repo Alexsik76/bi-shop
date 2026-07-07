@@ -9,8 +9,9 @@ import { getImage } from 'astro:assets';
 import rabbitImgSrc from '../assets/hero-rabbit.png';
 
 const order = { available: 0, 'made-to-order': 1, sold: 2 } as const;
+const getStatusOrder = (status?: string) => (status && order[status as keyof typeof order] !== undefined ? order[status as keyof typeof order] : 999);
 const toys = (await getCollection('igrashky')).sort(
-  (a, b) => order[a.data.status] - order[b.data.status],
+  (a, b) => getStatusOrder(a.data.status) - getStatusOrder(b.data.status),
 );
 
 const optimizedRabbit = await getImage({ src: rabbitImgSrc, width: 389, height: 420, format: 'webp' });

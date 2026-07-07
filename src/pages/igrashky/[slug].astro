@@ -22,7 +22,7 @@ interface Props {
 }
 
 const { toy } = Astro.props;
-const { title, price, size, materials, status, cover, gallery } =
+const { title = 'Іграшка', price, size, materials, status = 'available', cover, gallery } =
   toy.data;
 const { Content } = await render(toy);
 
@@ -41,8 +41,8 @@ const resolvedFrames = await Promise.all(
   })
 );
 
-const badge = statusMeta[status];
-const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
+const badge = statusMeta[status] || statusMeta.available;
+const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFormat('uk-UA').format(price) : '';
 
 // Зображення для Open Graph.
 const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp' });
@@ -50,10 +50,20 @@ const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp
 // Постер для 3D-обертання.
 const poster = await getImage({ src: cover, width: 800, height: 800, format: 'webp' });
 
-const metaDescription = `${title} — м’яка іграшка ручної роботи, ${size}. Матеріали: ${materials}. Ціна ${priceFormatted} грн.`;
+const sizeText = size ? `, ${size}` : '';
+const materialsText = materials ? `. Матеріали: ${materials}` : '';
+const priceText = priceFormatted ? `. Ціна ${priceFormatted} грн.` : '';
+const metaDescription = `${title} — м’яка іграшка ручної роботи${sizeText}${materialsText}${priceText}`;
 
 const absoluteCanonical = new URL(Astro.url.pathname, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
 const absoluteCoverUrl = new URL(og.src, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
+
+const availabilityMap = {
+  'available': "https://schema.org/InStock",
+  'made-to-order': "https://schema.org/MadeToOrder",
+  'sold': "https://schema.org/SoldOut"
+};
+const availability = availabilityMap[status] || "https://schema.org/InStock";
 
 const productSchema = {
   "@context": "https://schema.org",
@@ -61,19 +71,17 @@ const productSchema = {
   "name": title,
   "description": metaDescription,
   "image": absoluteCoverUrl,
-  "material": materials,
-  "size": size,
+  ...(materials ? { "material": materials } : {}),
+  ...(size ? { "size": size } : {}),
   "brand": {
     "@type": "Brand",
     "name": site.name
   },
   "offers": {
     "@type": "Offer",
-    "price": price,
+    ...(price !== undefined ? { "price": price } : {}),
     "priceCurrency": "UAH",
-    "availability": status === 'available'
-      ? "https://schema.org/InStock"
-      : (status === 'made-to-order' ? "https://schema.org/MadeToOrder" : "https://schema.org/SoldOut"),
+    "availability": availability,
     "url": absoluteCanonical,
     "seller": {
       "@type": "Organization",
@@ -143,14 +151,16 @@ const schemas = [productSchema, breadcrumbSchema];
 </div>
 
         <div class="product-info">
-          <span class={`badge badge-${badge.kind}`}>{badge.label}</span>
+          {badge && <span class={`badge badge-${badge.kind}`}>{badge.label}</span>}
           <h1>{title}</h1>
-          <p class="product-price">{priceFormatted} грн</p>
+          {priceFormatted && <p class="product-price">{priceFormatted} грн</p>}
 
-          <dl class="specs">
-            <div><dt>Розмір</dt><dd>{size}</dd></div>
-            <div><dt>Матеріали</dt><dd>{materials}</dd></div>
-          </dl>
+          {(size || materials) && (
+            <dl class="specs">
+              {size && <div><dt>Розмір</dt><dd>{size}</dd></div>}
+              {materials && <div><dt>Матеріали</dt><dd>{materials}</dd></div>}
+            </dl>
+          )}
 
           <div class="product-desc">
             <Content />
