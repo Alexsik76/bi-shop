@@ -4,8 +4,7 @@ price: 1800
 size: 28 см
 materials: велюр, холлофайбер
 status: made-to-order
-cover: ../../assets/toys/lisitca-cover.jpg
-spinFrames: 0
+cover: ./cover.jpg
 gallery: []
 ---
 

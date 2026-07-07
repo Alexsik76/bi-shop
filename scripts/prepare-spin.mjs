@@ -12,10 +12,10 @@
  *   node scripts/prepare-spin.mjs <тека-оригіналів> [тека-призначення]
  *
  * Приклад:
- *   node scripts/prepare-spin.mjs ~/foto/vedmedyk public/spin/vedmedyk-tymko
+ *   node scripts/prepare-spin.mjs ~/foto/vedmedyk src/content/igrashky/vedmedyk-tymko/spin
  *
  * Якщо теку призначення не вказано, використовується
- *   public/spin/<назва-теки-оригіналів>.
+ *   src/content/igrashky/<назва-теки-оригіналів>/spin.
  */
 import sharp from 'sharp';
 import { readdir, mkdir, rm } from 'node:fs/promises';
@@ -36,7 +36,7 @@ async function main() {
   }
 
   const outputDir =
-    outputArg ?? path.join('public', 'spin', path.basename(path.resolve(inputDir)));
+    outputArg ?? path.join('src', 'content', 'igrashky', path.basename(path.resolve(inputDir)), 'spin');
 
   let entries;
   try {
@@ -76,7 +76,6 @@ async function main() {
   }
 
   console.log(`\n✓ Готово: ${files.length} кадрів у «${outputDir}».`);
-  console.log(`  У frontmatter іграшки вкажіть: spinFrames: ${files.length}`);
 }
 
 main().catch((err) => {

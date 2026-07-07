@@ -4,8 +4,7 @@ price: 1950
 size: 30 см
 materials: плюш, бавовна, холлофайбер
 status: available
-cover: ../../assets/toys/zayets-cover.jpg
-spinFrames: 0
+cover: ./cover.jpg
 gallery: []
 ---
 

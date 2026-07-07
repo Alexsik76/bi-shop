@@ -4,12 +4,10 @@ price: 1
 size: 27 см
 materials: плюш, холлофайбер
 status: available
-cover: ../../assets/toys/pes-cover.jpg
-spinFrames: 36
-spinDir: pes
+cover: ./cover.jpg
 gallery:
-  - ../../assets/toys/pes-1.jpg
-  - ../../assets/toys/pes-2.jpg
+  - ./gallery-1.jpg
+  - ./gallery-2.jpg
 ---
 
 Песик із м’якого велюру з характерними гострими вушками. Компактний розмір —

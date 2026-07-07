@@ -33,5 +33,3 @@ export const site = {
 } as const;
 
 export type SiteConfig = typeof site;
-
-export const DEFAULT_SPIN_FRAMES = 24;

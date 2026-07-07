@@ -4,8 +4,7 @@ price: 1550
 size: 22 см
 materials: плюш, безпечний пластик
 status: sold
-cover: ../../assets/toys/lis_2-cover.jpg
-spinFrames: 0
+cover: ./cover.jpg
 gallery: []
 ---
 

@@ -4,8 +4,7 @@ price: 1650
 size: 25 см
 materials: плюшева пряжа, холлофайбер
 status: available
-cover: ../../assets/toys/zayka-cover.jpg
-spinFrames: 0
+cover: ./cover.jpg
 gallery: []
 ---
 

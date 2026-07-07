@@ -1,11 +1,7 @@
 ---
-import { DEFAULT_SPIN_FRAMES } from '../config';
-
 interface Props {
-  /** Тека з кадрами всередині public/spin/ (наприклад «vedmedyk-tymko»). */
-  dir: string;
-  /** Кількість кадрів. */
-  frames?: number;
+  /** Масив оптимізованих кадрів обертання. */
+  frames: string[];
   /** Підпис для доступності. */
   alt: string;
   /** Оптимізований постер. */
@@ -16,11 +12,10 @@ interface Props {
   };
 }
 
-const { dir, frames = DEFAULT_SPIN_FRAMES, alt, poster } = Astro.props;
-const base = `/spin/${dir}`;
+const { frames, alt, poster } = Astro.props;
 ---
 
-<div class="spin" data-spin data-base={base} data-frames={frames}>
+<div class="spin" data-spin data-urls={JSON.stringify(frames)}>
   <div
     class="spin-stage"
     tabindex="0"
@@ -46,21 +41,15 @@ const base = `/spin/${dir}`;
 </div>
 
 <script>
-  import { DEFAULT_SPIN_FRAMES } from '../config';
-
   function initSpin(el: HTMLElement) {
-    const base = el.dataset.base!;
-    const frames = Number(el.dataset.frames) || DEFAULT_SPIN_FRAMES;
+    const urls = JSON.parse(el.dataset.urls || '[]') as string[];
+    const frames = urls.length;
+    if (frames === 0) return;
+
     const img = el.querySelector<HTMLImageElement>('.spin-img')!;
     const loader = el.querySelector<HTMLElement>('[data-loader]')!;
     const hint = el.querySelector<HTMLElement>('[data-hint]')!;
     const stage = el.querySelector<HTMLElement>('.spin-stage')!;
-
-    const pad = Math.max(2, String(frames).length);
-    const urls = Array.from(
-      { length: frames },
-      (_, i) => `${base}/frame-${String(i + 1).padStart(pad, '0')}.webp`,
-    );
 
     let loaded = 0;
     let loadingStarted = false;

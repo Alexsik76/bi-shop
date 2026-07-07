@@ -22,9 +22,24 @@ interface Props {
 }
 
 const { toy } = Astro.props;
-const { title, price, size, materials, status, cover, spinFrames, spinDir, gallery } =
+const { title, price, size, materials, status, cover, gallery } =
   toy.data;
 const { Content } = await render(toy);
+
+// Збір та оптимізація кадрів обертання для поточної іграшки.
+const framesGlob = import.meta.glob('../../content/igrashky/*/spin/*.webp', { eager: true });
+const toySlug = toy.id;
+const toyFramesPaths = Object.keys(framesGlob)
+  .filter((path) => path.includes(`/content/igrashky/${toySlug}/spin/`))
+  .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+
+const resolvedFrames = await Promise.all(
+  toyFramesPaths.map(async (p) => {
+    const imgMetadata = (framesGlob[p] as any).default;
+    const optimized = await getImage({ src: imgMetadata, width: 800, height: 800, format: 'webp' });
+    return optimized.src;
+  })
+);
 
 const badge = statusMeta[status];
 const priceFormatted = new Intl.NumberFormat('uk-UA').format(price);
@@ -103,10 +118,9 @@ const schemas = [productSchema, breadcrumbSchema];
 
       <div class="product-grid">
         <div class="product-media">
-  {spinDir ? (
+  {resolvedFrames.length > 0 ? (
     <Spin360
-      dir={spinDir}
-      frames={spinFrames}
+      frames={resolvedFrames}
       alt={title}
       poster={{
         src: poster.src,

@@ -4,8 +4,7 @@ price: 1850
 size: 29 см
 materials: плюшева пряжа, холлофайбер
 status: available
-cover: ../../assets/toys/lis-cover.jpg
-spinFrames: 0
+cover: ./cover.jpg
 gallery: []
 ---
 
