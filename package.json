@@ -7,14 +7,20 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "npm run build && wrangler dev",
     "astro": "astro",
-    "prepare-spin": "node scripts/prepare-spin.mjs"
+    "prepare-spin": "node scripts/prepare-spin.mjs",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "12",
     "@astrojs/sitemap": "^3.7.0",
     "astro": "^5.14.0",
     "busboy": "^1.6.0",
     "sharp": "^0.34.4"
+  },
+  "devDependencies": {
+    "wrangler": "^4.107.1"
   }
 }
