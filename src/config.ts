@@ -40,6 +40,9 @@ export const site = {
 
   /** Місто чи регіон майстрині (для підвалу). */
   location: 'Україна',
+
+  /** Base URL for toy images served from Cloudflare R2. */
+  r2Url: 'https://img.babusyni-igrashky.com.ua',
 } as const;
 
 export type SiteConfig = typeof site;

@@ -1,33 +1,35 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import { statusMeta } from '../lib/status';
+import { site } from '../config';
 
 interface Props {
   toy: CollectionEntry<'igrashky'>;
 }
 
 const { toy } = Astro.props;
-const { title, price, size, status = 'available', cover } = toy.data;
+const { title, price, size, status = 'available' } = toy.data;
 const slug = toy.id;
 
 const badge = statusMeta[status] || statusMeta.available;
 const isSold = status === 'sold';
 const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFormat('uk-UA').format(price) : '';
+
+const coverUrl = `${site.r2Url}/${slug}/cover.webp`;
+const coverSmUrl = `${site.r2Url}/${slug}/cover-sm.webp`;
 ---
 
 <article class={`card ${isSold ? 'is-sold' : ''}`} data-toy-id={toy.id}>
   <a href={`/igrashky/${slug}/`} class="card-link">
     <div class="card-media">
-      <Image
-        src={cover}
-        alt={`Іграшка «${title || ''}»`}
-        width={600}
-        height={800}
-        widths={[300, 600]}
+      <img
+        src={coverUrl}
+        srcset={`${coverSmUrl} 640w, ${coverUrl} 1200w`}
         sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 90vw"
-        format="webp"
-        quality={80}
+        width="600"
+        height="800"
+        alt={`Іграшка «${title || ''}»`}
+        decoding="async"
       />
       <span class={`badge badge-${badge.kind}`} data-kv="status">{toy.data.status ? (statusMeta[toy.data.status]?.label || '') : ''}</span>
 
@@ -66,7 +68,7 @@ const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFo
     aspect-ratio: 3 / 4;
     background: var(--color-bg);
   }
-  .card-media :global(img) {
+  .card-media img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -109,7 +111,7 @@ const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFo
     text-transform: uppercase;
   }
 
-  .is-sold .card-media :global(img) {
+  .is-sold .card-media img {
     filter: grayscale(0.85);
     opacity: 0.55;
   }

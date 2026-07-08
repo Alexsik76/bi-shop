@@ -41,6 +41,8 @@ export function renderAdminHtml(
     const materials = currentData.materials || '';
     const status = currentData.status || '';
     const description = currentData.description || '';
+    const galleryCount = currentData.galleryCount !== undefined ? currentData.galleryCount : 0;
+    const spinCount = currentData.spinCount !== undefined ? currentData.spinCount : 0;
 
     const errorListHtml = isEditingThis && feedback.errors && feedback.errors.length > 0
       ? `<div class="error-banner">
@@ -116,6 +118,16 @@ export function renderAdminHtml(
             <div class="form-group col-3">
               <label for="description-${escapeHtml(id)}">Опис іграшки (абзаци розділяються порожнім рядком або \\n)</label>
               <textarea id="description-${escapeHtml(id)}" name="description" rows="5" placeholder="Опис іграшки...">${escapeHtml(description)}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="galleryCount-${escapeHtml(id)}">Кількість фото галереї</label>
+              <input type="number" id="galleryCount-${escapeHtml(id)}" name="galleryCount" value="${escapeHtml(String(galleryCount))}" min="0" step="1" placeholder="0">
+            </div>
+
+            <div class="form-group">
+              <label for="spinCount-${escapeHtml(id)}">Кількість кадрів обертання</label>
+              <input type="number" id="spinCount-${escapeHtml(id)}" name="spinCount" value="${escapeHtml(String(spinCount))}" min="0" step="1" placeholder="0">
             </div>
           </div>
 

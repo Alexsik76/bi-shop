@@ -1,44 +1,22 @@
 ---
 interface Props {
-  /** Масив оптимізованих кадрів обертання. */
-  frames: string[];
-  /** Підпис для доступності. */
+  toyId: string;
+  spinCount: number;
+  r2Url: string;
   alt: string;
-  /** Оптимізований постер. */
-  poster: {
-    src: string;
-    width: number;
-    height: number;
-  };
 }
 
-const { frames, alt, poster } = Astro.props;
+const { toyId, spinCount, r2Url, alt } = Astro.props;
+
+const posterUrl = `${r2Url}/${toyId}/cover.webp`;
+
+const frameUrls = Array.from({ length: spinCount }, (_, i) => {
+  const n = String(i + 1).padStart(2, '0');
+  return `${r2Url}/${toyId}/spin/frame-${n}.webp`;
+});
 ---
 
-<div class="spin" data-spin data-urls={JSON.stringify(frames)}>
-  <div
-    class="spin-stage"
-    tabindex="0"
-    role="region"
-    aria-label={`Обертання іграшки: ${alt}. Використовуйте стрілки вліво та вправо`}
-  >
-    <img
-      class="spin-img"
-      src={poster.src}
-      width={poster.width}
-      height={poster.height}
-      alt={alt}
-      draggable="false"
-    />
-    <div class="spin-loader" data-loader>
-      <span class="spin-spinner" aria-hidden="true"></span>
-      <span>Завантаження…</span>
-    </div>
-    <div class="spin-hint" data-hint>
-      <span aria-hidden="true">↔</span> Покрутіть мене
-    </div>
-  </div>
-</div>
+<div id="dynamic-spin" data-toy-id={toyId} data-alt={alt}></div>
 
 <script>
   function initSpin(el: HTMLElement) {

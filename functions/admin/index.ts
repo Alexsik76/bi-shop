@@ -88,6 +88,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const materials = (formData.get('materials') as string || '').trim();
       const status = (formData.get('status') as string || '').trim();
       const description = (formData.get('description') as string || '');
+      const galleryCountRaw = (formData.get('galleryCount') as string || '0').trim();
+      const spinCountRaw = (formData.get('spinCount') as string || '0').trim();
 
       const errors: string[] = [];
       if (!title) {
@@ -118,6 +120,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         errors.push('Опис не повинен перевищувати 4000 символів.');
       }
 
+      const galleryCount = parseInt(galleryCountRaw, 10);
+      if (isNaN(galleryCount) || galleryCount < 0) {
+        errors.push('Кількість фото галереї повинна бути невід\'ємним цілим числом.');
+      }
+
+      const spinCount = parseInt(spinCountRaw, 10);
+      if (isNaN(spinCount) || spinCount < 0) {
+        errors.push('Кількість кадрів обертання повинна бути невід\'ємним цілим числом.');
+      }
+
       if (errors.length > 0) {
         const html = renderAdminHtml(toys, kvRecords, {
           errors,
@@ -128,7 +140,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             size,
             materials,
             status,
-            description
+            description,
+            galleryCount: isNaN(galleryCount) ? galleryCountRaw : galleryCount,
+            spinCount: isNaN(spinCount) ? spinCountRaw : spinCount
           }
         });
         return new Response(html, {
@@ -143,6 +157,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         materials,
         status,
         description,
+        galleryCount,
+        spinCount,
         updatedAt: new Date().toISOString()
       };
 

@@ -49,6 +49,124 @@ function formatDescription(desc: string | undefined | null): string {
   return paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('');
 }
 
+function buildGalleryHtml(toyId: string, galleryCount: number, alt: string): string {
+  if (galleryCount <= 0) return '';
+  
+  const r2Url = site.r2Url;
+  const images = Array.from({ length: galleryCount }, (_, i) => {
+    const n = i + 1;
+    return {
+      full: `${r2Url}/${toyId}/gallery-${n}.webp`,
+      sm: `${r2Url}/${toyId}/gallery-${n}-sm.webp`,
+    };
+  });
+  
+  const mainImagesHtml = images.map((img, i) => `
+    <img
+      src="${img.full}"
+      srcset="${img.sm} 640w, ${img.full} 1200w"
+      sizes="(min-width: 1024px) 500px, 90vw"
+      width="900"
+      height="900"
+      alt="${escapeHtml(alt)} — фото ${i + 1}"
+      class="${i === 0 ? 'is-active' : ''}"
+      data-main-img="${i}"
+      loading="lazy"
+      decoding="async"
+    />
+  `).join('');
+
+  let thumbsHtml = '';
+  if (images.length > 1) {
+    const thumbItems = images.map((img, i) => `
+      <li>
+        <button
+          type="button"
+          class="thumb ${i === 0 ? 'is-active' : ''}"
+          data-thumb="${i}"
+          aria-label="Показати фото ${i + 1}"
+        >
+          <img
+            src="${img.full}"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+            decoding="async"
+          />
+        </button>
+      </li>
+    `).join('');
+    
+    thumbsHtml = `
+      <ul class="gallery-thumbs">
+        ${thumbItems}
+      </ul>
+    `;
+  }
+
+  return `
+    <div class="gallery" data-gallery>
+      <div class="gallery-main">
+        ${mainImagesHtml}
+      </div>
+      ${thumbsHtml}
+    </div>
+  `;
+}
+
+function buildSpinHtml(toyId: string, spinCount: number, alt: string): string {
+  const r2Url = site.r2Url;
+  
+  if (spinCount <= 0) {
+    const coverUrl = `${r2Url}/${toyId}/cover.webp`;
+    const coverSmUrl = `${r2Url}/${toyId}/cover-sm.webp`;
+    return `
+      <img
+        src="${coverUrl}"
+        srcset="${coverSmUrl} 640w, ${coverUrl} 1200w"
+        sizes="(min-width: 1024px) 500px, 90vw"
+        width="800"
+        height="800"
+        alt="${escapeHtml(alt)}"
+      />
+    `;
+  }
+  
+  const frameUrls = Array.from({ length: spinCount }, (_, i) => {
+    const n = String(i + 1).padStart(2, '0');
+    return `${r2Url}/${toyId}/spin/frame-${n}.webp`;
+  });
+  const posterUrl = `${r2Url}/${toyId}/cover.webp`;
+  
+  return `
+    <div class="spin" data-spin data-urls="${escapeHtml(JSON.stringify(frameUrls))}">
+      <div
+        class="spin-stage"
+        tabindex="0"
+        role="region"
+        aria-label="Обертання іграшки: ${escapeHtml(alt)}. Використовуйте стрілки вліво та вправо"
+      >
+        <img
+          class="spin-img"
+          src="${posterUrl}"
+          width="800"
+          height="800"
+          alt="${escapeHtml(alt)}"
+          draggable="false"
+        />
+        <div class="spin-loader" data-loader>
+          <span class="spin-spinner" aria-hidden="true"></span>
+          <span>Завантаження…</span>
+        </div>
+        <div class="spin-hint" data-hint>
+          <span aria-hidden="true">↔</span> Покрутіть мене
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 export const onRequest: PagesFunction<Env> = async (context) => {
   const request = context.request;
   if (request.method !== 'GET') {
@@ -134,6 +252,34 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       .on('[data-kv="materials"]', {
         element(element) {
           element.setInnerContent(escapeHtml(currentToyData.materials || ''));
+        }
+      })
+      .on('[data-kv="galleryCount"]', {
+        element(element) {
+          const count = typeof currentToyData.galleryCount === 'number' ? currentToyData.galleryCount : 0;
+          element.setInnerContent(String(count));
+        }
+      })
+      .on('[data-kv="spinCount"]', {
+        element(element) {
+          const count = typeof currentToyData.spinCount === 'number' ? currentToyData.spinCount : 0;
+          element.setInnerContent(String(count));
+        }
+      })
+      .on('#dynamic-gallery', {
+        element(element) {
+          const toyId = element.getAttribute('data-toy-id') || '';
+          const alt = element.getAttribute('data-alt') || '';
+          const count = typeof currentToyData.galleryCount === 'number' ? currentToyData.galleryCount : 0;
+          element.setInnerContent(buildGalleryHtml(toyId, count, alt), { html: true });
+        }
+      })
+      .on('#dynamic-spin', {
+        element(element) {
+          const toyId = element.getAttribute('data-toy-id') || '';
+          const alt = element.getAttribute('data-alt') || '';
+          const count = typeof currentToyData.spinCount === 'number' ? currentToyData.spinCount : 0;
+          element.setInnerContent(buildSpinHtml(toyId, count, alt), { html: true });
         }
       })
       .on('[data-kv="description"]', {

@@ -1,6 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content';
-import { Image, getImage } from 'astro:assets';
+import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Spin360 from '../../components/Spin360.astro';
@@ -22,54 +21,30 @@ interface Props {
 }
 
 const { toy } = Astro.props;
-const { title, price, size, materials, status = 'available', cover, gallery } =
-  toy.data;
-const { Content } = await render(toy);
+const { title, price, size, materials, status = 'available' } = toy.data;
+const toyId = toy.id;
 
-// Збір та оптимізація кадрів обертання для поточної іграшки.
-const framesGlob = import.meta.glob('../../content/igrashky/*/spin/*.webp', { eager: true });
-const toySlug = toy.id;
-const toyFramesPaths = Object.keys(framesGlob)
-  .filter((path) => path.includes(`/content/igrashky/${toySlug}/spin/`))
-  .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
-
-const resolvedFrames = await Promise.all(
-  toyFramesPaths.map(async (p) => {
-    const imgMetadata = (framesGlob[p] as any).default;
-    const optimized = await getImage({ src: imgMetadata, width: 800, height: 800, format: 'webp' });
-    return optimized.src;
-  })
-);
+const galleryCount = Array.isArray(toy.data.gallery) ? toy.data.gallery.length : 0;
+const spinCount = toy.data.spinDir ? 36 : 0;
 
 const badge = statusMeta[status] || statusMeta.available;
 const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFormat('uk-UA').format(price) : '';
 
-// Зображення для Open Graph.
-const og = await getImage({ src: cover, width: 1200, height: 1200, format: 'webp' });
-
-// Постер для 3D-обертання.
-const poster = await getImage({ src: cover, width: 800, height: 800, format: 'webp' });
+const coverUrl = `${site.r2Url}/${toyId}/cover.webp`;
+const coverSmUrl = `${site.r2Url}/${toyId}/cover-sm.webp`;
 
 const sizeText = size ? `, ${size}` : '';
 const materialsText = materials ? `. Матеріали: ${materials}` : '';
 const priceText = priceFormatted ? `. Ціна ${priceFormatted} грн.` : '';
-const metaDescription = `${title || ''} — м’яка іграшка ручної роботи${sizeText}${materialsText}${priceText}`;
+const metaDescription = `${title || ''} — м'яка іграшка ручної роботи${sizeText}${materialsText}${priceText}`;
 
 const absoluteCanonical = new URL(Astro.url.pathname, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
-const absoluteCoverUrl = new URL(og.src, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
-
-const absoluteGalleryUrls = await Promise.all(
-  (gallery || []).map(async (img) => {
-    const opt = await getImage({ src: img, width: 1200, height: 1200, format: 'webp' });
-    return new URL(opt.src, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
-  })
-);
 
 const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
   "name": "",
-  "image": [absoluteCoverUrl, ...absoluteGalleryUrls],
+  "image": [coverUrl],
   "offers": {
     "@type": "Offer",
     "priceCurrency": "UAH",
@@ -103,38 +78,27 @@ const schemas = [productSchema, breadcrumbSchema];
 <BaseLayout
   title={title || ''}
   description={metaDescription}
-  ogImage={og.src}
+  ogImage={coverUrl}
   ogType="product"
   productPrice={price}
   schema={schemas}
 >
   <article class="section product" data-toy-id={toy.id}>
     <div class="container">
+      <span hidden data-kv="galleryCount">{galleryCount}</span>
+      <span hidden data-kv="spinCount">{spinCount}</span>
       <p class="crumbs"><a href="/#katalog">← До каталогу</a></p>
 
       <div class="product-grid">
         <div class="product-media">
-  {resolvedFrames.length > 0 ? (
     <Spin360
-      frames={resolvedFrames}
+      toyId={toyId}
+      spinCount={spinCount}
+      r2Url={site.r2Url}
       alt={title || ''}
-      poster={{
-        src: poster.src,
-        width: Number(poster.attributes.width ?? 800),
-        height: Number(poster.attributes.height ?? 800),
-      }}
     />
-  ) : (
-    <Image
-      src={cover}
-      alt={title || ''}
-      width={800}
-      height={800}
-      format="webp"
-    />
-  )}
   <div class="product-gallery">
-    <Gallery images={gallery} alt={title || ''} />
+    <Gallery toyId={toyId} galleryCount={galleryCount} r2Url={site.r2Url} alt={title || ''} />
   </div>
 </div>
 
@@ -149,7 +113,6 @@ const schemas = [productSchema, breadcrumbSchema];
           </dl>
 
           <div class="product-desc" data-kv="description">
-            <Content />
           </div>
 
 
