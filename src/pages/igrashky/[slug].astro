@@ -152,17 +152,6 @@ const schemas = [productSchema, breadcrumbSchema];
             <Content />
           </div>
 
-          {status === 'sold' ? (
-            <p class="sold-note">
-              Ця іграшка вже знайшла свою домівку. Проте ми можемо зв'язати схожу на замовлення спицями: колір пряжі та деталі узгоджуємо окремо.
-            </p>
-          ) : null}
-
-          {status === 'made-to-order' ? (
-            <p class="sold-note">
-              Ця іграшка в'яжеться під замовлення. Ми зв'яжемо її спеціально для вас спицями: колір пряжі та деталі узгоджуємо окремо.
-            </p>
-          ) : null}
 
           <OrderButton toyTitle={title || ''} label="Замовити цю іграшку" />
         </div>

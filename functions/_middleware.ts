@@ -140,9 +140,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         element(element) {
           element.setInnerContent(descHtml, { html: true });
           if (currentToyData.status === 'sold') {
-            element.after(`<p class="sold-note">Ця іграшка вже знайшла свою домівку. Проте ми можемо зв'язати схожу на замовлення спицями: колір пряжі та деталі узгоджуємо окремо.</p>`, { html: true });
+            element.after(`<p class="sold-note">${escapeHtml(site.statusNotes.sold)}</p>`, { html: true });
           } else if (currentToyData.status === 'made-to-order') {
-            element.after(`<p class="sold-note">Ця іграшка в'яжеться під замовлення. Ми зв'яжемо її спеціально для вас спицями: колір пряжі та деталі узгоджуємо окремо.</p>`, { html: true });
+            element.after(`<p class="sold-note">${escapeHtml(site.statusNotes.madeToOrder)}</p>`, { html: true });
           }
         }
       })
@@ -290,7 +290,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         element(element) {
           if (shouldRemoveCurrent || !currentToyData) return;
           if (currentToyData.status === 'sold') {
-            element.append('<span class="sold-overlay">Продано</span>', { html: true });
+            element.append(`<span class="sold-overlay">${escapeHtml(site.statusNotes.soldOverlay)}</span>`, { html: true });
           }
         }
       })

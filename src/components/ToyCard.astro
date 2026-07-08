@@ -30,7 +30,7 @@ const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFo
         quality={80}
       />
       <span class={`badge badge-${badge.kind}`} data-kv="status">{toy.data.status ? (statusMeta[toy.data.status]?.label || '') : ''}</span>
-      {isSold && <span class="sold-overlay">Продано</span>}
+
     </div>
     <div class="card-body">
       <h3 class="card-title" data-kv="title">{title || ''}</h3>
