@@ -1,0 +1,8 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "bi-shop"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-07-08"
+
+[[kv_namespaces]]
+binding = "TOYS_KV"
+id = "YOUR_KV_NAMESPACE_ID"

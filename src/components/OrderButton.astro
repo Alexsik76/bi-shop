@@ -19,8 +19,8 @@ const {
 } = Astro.props;
 
 const message = toyTitle
-  ? `Доброго дня! Хочу замовити іграшку "${toyTitle}"`
-  : 'Доброго дня! Хочу замовити іграшку';
+  ? site.orderMessage.replace('{title}', toyTitle)
+  : site.orderMessage.replace(' "{title}"', '').replace('"{title}"', '');
 
 const href = `https://t.me/${site.telegram}?text=${encodeURIComponent(message)}`;
 ---

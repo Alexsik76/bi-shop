@@ -8,7 +8,7 @@ interface Props {
 }
 
 const { toy } = Astro.props;
-const { title = 'Без назви', price, size, status = 'available', cover } = toy.data;
+const { title, price, size, status = 'available', cover } = toy.data;
 const slug = toy.id;
 
 const badge = statusMeta[status] || statusMeta.available;
@@ -16,12 +16,12 @@ const isSold = status === 'sold';
 const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFormat('uk-UA').format(price) : '';
 ---
 
-<article class={`card ${isSold ? 'is-sold' : ''}`}>
+<article class={`card ${isSold ? 'is-sold' : ''}`} data-toy-id={toy.id}>
   <a href={`/igrashky/${slug}/`} class="card-link">
     <div class="card-media">
       <Image
         src={cover}
-        alt={`Іграшка «${title}»`}
+        alt={`Іграшка «${title || ''}»`}
         width={600}
         height={800}
         widths={[300, 600]}
@@ -29,13 +29,13 @@ const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFo
         format="webp"
         quality={80}
       />
-      {badge && <span class={`badge badge-${badge.kind}`}>{badge.label}</span>}
+      <span class={`badge badge-${badge.kind}`} data-kv="status">{toy.data.status ? (statusMeta[toy.data.status]?.label || '') : ''}</span>
       {isSold && <span class="sold-overlay">Продано</span>}
     </div>
     <div class="card-body">
-      <h3 class="card-title">{title}</h3>
+      <h3 class="card-title" data-kv="title">{title || ''}</h3>
       {size && <p class="card-size">{size}</p>}
-      {priceFormatted && <p class="card-price">{priceFormatted} грн</p>}
+      <p class="card-price"><span data-kv="price">{priceFormatted || ''}</span> грн</p>
     </div>
   </a>
 </article>
