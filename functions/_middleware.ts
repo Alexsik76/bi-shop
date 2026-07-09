@@ -56,15 +56,16 @@ function buildGalleryHtml(toyId: string, galleryCount: number, alt: string): str
   const images = Array.from({ length: galleryCount }, (_, i) => {
     const n = i + 1;
     return {
-      full: `${r2Url}/${toyId}/gallery-${n}.webp`,
-      sm: `${r2Url}/${toyId}/gallery-${n}-sm.webp`,
+      t480: `${r2Url}/${toyId}/gallery-${n}-480.webp`,
+      t960: `${r2Url}/${toyId}/gallery-${n}-960.webp`,
+      t1600: `${r2Url}/${toyId}/gallery-${n}-1600.webp`,
     };
   });
   
   const mainImagesHtml = images.map((img, i) => `
     <img
-      src="${img.full}"
-      srcset="${img.sm} 640w, ${img.full} 1200w"
+      src="${img.t960}"
+      srcset="${img.t480} 480w, ${img.t960} 960w, ${img.t1600} 1600w"
       sizes="(min-width: 1024px) 500px, 90vw"
       width="900"
       height="900"
@@ -87,7 +88,7 @@ function buildGalleryHtml(toyId: string, galleryCount: number, alt: string): str
           aria-label="Показати фото ${i + 1}"
         >
           <img
-            src="${img.full}"
+            src="${img.t480}"
             alt=""
             width="140"
             height="140"
@@ -119,12 +120,13 @@ function buildSpinHtml(toyId: string, spinCount: number, alt: string): string {
   const r2Url = site.r2Url;
   
   if (spinCount <= 0) {
-    const coverUrl = `${r2Url}/${toyId}/cover.webp`;
-    const coverSmUrl = `${r2Url}/${toyId}/cover-sm.webp`;
+    const cover480 = `${r2Url}/${toyId}/cover-480.webp`;
+    const cover960 = `${r2Url}/${toyId}/cover-960.webp`;
+    const cover1600 = `${r2Url}/${toyId}/cover-1600.webp`;
     return `
       <img
-        src="${coverUrl}"
-        srcset="${coverSmUrl} 640w, ${coverUrl} 1200w"
+        src="${cover960}"
+        srcset="${cover480} 480w, ${cover960} 960w, ${cover1600} 1600w"
         sizes="(min-width: 1024px) 500px, 90vw"
         width="800"
         height="800"
@@ -137,7 +139,7 @@ function buildSpinHtml(toyId: string, spinCount: number, alt: string): string {
     const n = String(i + 1).padStart(2, '0');
     return `${r2Url}/${toyId}/spin/frame-${n}.webp`;
   });
-  const posterUrl = `${r2Url}/${toyId}/cover.webp`;
+  const posterUrl = `${r2Url}/${toyId}/cover-960.webp`;
   
   return `
     <div class="spin" data-spin data-urls="${escapeHtml(JSON.stringify(frameUrls))}">
@@ -178,13 +180,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   const isListingPage = pathname === '/' || pathname === '/index.html';
   const detailMatch = pathname.match(/^\/igrashky\/([^\/]+)\/?(?:index\.html)?$/);
+  const isDetailPage = !!detailMatch && detailMatch[1] !== '_toy';
 
-  if (!isListingPage && !detailMatch) {
+  if (!isListingPage && !isDetailPage) {
     return context.next();
   }
 
-  if (detailMatch) {
-    const toyId = detailMatch[1];
+  if (isDetailPage) {
+    const toyId = detailMatch![1];
     let recordJson: string | null = null;
     try {
       recordJson = await context.env.TOYS_KV.get(`toy:${toyId}`);
@@ -212,7 +215,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    const response = await context.next();
+    const shellUrl = new URL('/igrashky/_toy/', request.url);
+    const response = await context.env.ASSETS.fetch(shellUrl);
     
     // We prepare the dynamic description paragraphs
     const descHtml = formatDescription(toyData.description);
@@ -268,7 +272,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       })
       .on('#dynamic-gallery', {
         element(element) {
-          const toyId = element.getAttribute('data-toy-id') || '';
           const alt = element.getAttribute('data-alt') || '';
           const count = typeof currentToyData.galleryCount === 'number' ? currentToyData.galleryCount : 0;
           element.setInnerContent(buildGalleryHtml(toyId, count, alt), { html: true });
@@ -276,7 +279,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       })
       .on('#dynamic-spin', {
         element(element) {
-          const toyId = element.getAttribute('data-toy-id') || '';
           const alt = element.getAttribute('data-alt') || '';
           const count = typeof currentToyData.spinCount === 'number' ? currentToyData.spinCount : 0;
           element.setInnerContent(buildSpinHtml(toyId, count, alt), { html: true });

@@ -1,42 +1,6 @@
 ---
-import { getCollection } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Spin360 from '../../components/Spin360.astro';
-import Gallery from '../../components/Gallery.astro';
-import OrderButton from '../../components/OrderButton.astro';
-import { site } from '../../config';
-import { statusMeta } from '../../lib/status';
-
-export async function getStaticPaths() {
-  const toys = await getCollection('igrashky');
-  return toys.map((toy) => ({
-    params: { slug: toy.id },
-    props: { toy },
-  }));
-}
-
-interface Props {
-  toy: CollectionEntry<'igrashky'>;
-}
-
-const { toy } = Astro.props;
-const { title, price, size, materials, status = 'available' } = toy.data;
-const toyId = toy.id;
-
-const galleryCount = Array.isArray(toy.data.gallery) ? toy.data.gallery.length : 0;
-const spinCount = toy.data.spinDir ? 36 : 0;
-
-const badge = statusMeta[status] || statusMeta.available;
-const priceFormatted = price !== undefined && price !== null ? new Intl.NumberFormat('uk-UA').format(price) : '';
-
-const coverUrl = `${site.r2Url}/${toyId}/cover.webp`;
-const coverSmUrl = `${site.r2Url}/${toyId}/cover-sm.webp`;
-
-const sizeText = size ? `, ${size}` : '';
-const materialsText = materials ? `. Матеріали: ${materials}` : '';
-const priceText = priceFormatted ? `. Ціна ${priceFormatted} грн.` : '';
-const metaDescription = `${title || ''} — м'яка іграшка ручної роботи${sizeText}${materialsText}${priceText}`;
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../config';
 
 const absoluteCanonical = new URL(Astro.url.pathname, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
 
@@ -44,7 +8,7 @@ const productSchema = {
   "@context": "https://schema.org",
   "@type": "Product",
   "name": "",
-  "image": [coverUrl],
+  "image": [],
   "offers": {
     "@type": "Offer",
     "priceCurrency": "UAH",
@@ -66,7 +30,7 @@ const breadcrumbSchema = {
     {
       "@type": "ListItem",
       "position": 2,
-      "name": title || '',
+      "name": "",
       "item": absoluteCanonical
     }
   ]
@@ -76,47 +40,39 @@ const schemas = [productSchema, breadcrumbSchema];
 ---
 
 <BaseLayout
-  title={title || ''}
-  description={metaDescription}
-  ogImage={coverUrl}
+  title=""
+  description=""
   ogType="product"
-  productPrice={price}
   schema={schemas}
 >
-  <article class="section product" data-toy-id={toy.id}>
+  <article class="section product">
     <div class="container">
-      <span hidden data-kv="galleryCount">{galleryCount}</span>
-      <span hidden data-kv="spinCount">{spinCount}</span>
+      <span hidden data-kv="galleryCount"></span>
+      <span hidden data-kv="spinCount"></span>
       <p class="crumbs"><a href="/#katalog">← До каталогу</a></p>
 
       <div class="product-grid">
         <div class="product-media">
-    <Spin360
-      toyId={toyId}
-      spinCount={spinCount}
-      r2Url={site.r2Url}
-      alt={title || ''}
-    />
-  <div class="product-gallery">
-    <Gallery toyId={toyId} galleryCount={galleryCount} r2Url={site.r2Url} alt={title || ''} />
-  </div>
-</div>
+          <div id="dynamic-spin" data-alt=""></div>
+          <div class="product-gallery">
+            <div id="dynamic-gallery" data-alt=""></div>
+          </div>
+        </div>
 
         <div class="product-info">
-          <span class={`badge badge-${badge.kind}`} data-kv="status">{toy.data.status ? (statusMeta[toy.data.status]?.label || '') : ''}</span>
-          <h1 data-kv="title">{title || ''}</h1>
-          <p class="product-price"><span data-kv="price">{priceFormatted || ''}</span> грн</p>
+          <span class="badge" data-kv="status"></span>
+          <h1 data-kv="title"></h1>
+          <p class="product-price"><span data-kv="price"></span> грн</p>
 
           <dl class="specs">
-            <div><dt>Розмір</dt><dd data-kv="size">{size || ''}</dd></div>
-            <div><dt>Матеріали</dt><dd data-kv="materials">{materials || ''}</dd></div>
+            <div><dt>Розмір</dt><dd data-kv="size"></dd></div>
+            <div><dt>Матеріали</dt><dd data-kv="materials"></dd></div>
           </dl>
 
           <div class="product-desc" data-kv="description">
           </div>
 
-
-          <OrderButton toyTitle={title || ''} label="Замовити цю іграшку" />
+          <a class="btn btn-primary" href={`https://t.me/${site.telegram}`} target="_blank" rel="noopener noreferrer">Замовити цю іграшку</a>
         </div>
       </div>
     </div>

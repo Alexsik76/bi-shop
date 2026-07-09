@@ -16,5 +16,6 @@ npm-debug.log*
 # тимчасові файли та документація розробки
 temp/
 docs/
-.wrangler/
 toy-*.json
+scratch/
+.wrangler/
