@@ -22,30 +22,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       return new Response('Forbidden: Missing Cf-Access-Jwt-Assertion header', { status: 403 });
     }
 
-    // ДЕБАГ: Перевіряємо, чи взагалі існують змінні
-    if (!env.CF_ACCESS_TEAM_DOMAIN || !env.CF_ACCESS_AUD) {
-      return new Response(`Debug: Missing Env Vars! TEAM: ${!!env.CF_ACCESS_TEAM_DOMAIN}, AUD: ${!!env.CF_ACCESS_AUD}`, { status: 403 });
-    }
-
-    const cleanTeam = env.CF_ACCESS_TEAM_DOMAIN.trim();
-    const cleanAud = env.CF_ACCESS_AUD.trim();
-
-    // ДЕБАГ: Перевіряємо аудиторію "вручну" перед верифікацією
-    try {
-      const payloadPart = jwt.split('.')[1];
-      const payload = JSON.parse(atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/')));
-      const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
-      
-      if (!audArray.includes(cleanAud)) {
-        return new Response(`Debug: Audience mismatch!\nОчікували (Env): ${cleanAud}\nОтримали (JWT): ${JSON.stringify(payload.aud)}`, { status: 403 });
-      }
-    } catch (e: any) {
-      return new Response(`Debug: Failed to parse JWT payload: ${e.message}`, { status: 403 });
-    }
-
-    const verified = await verifyJwt(jwt, cleanTeam, cleanAud);
+    const verified = await verifyJwt(jwt, env.CF_ACCESS_TEAM_DOMAIN, env.CF_ACCESS_AUD);
     if (!verified) {
-      return new Response('Debug: Signature verification or Fetching JWKS failed (Check Team Domain formatting)', { status: 403 });
+      return new Response('Forbidden: Access JWT Verification Failed', { status: 403 });
     }
   }
 

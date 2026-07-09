@@ -65,12 +65,15 @@ export function renderAdminHtml(
     return `
       <div class="toy-card" id="toy-card-${escapeHtml(id)}">
         <div class="toy-card-header">
-          <div class="toy-info">
-            <h2 class="toy-id">${escapeHtml(id)}</h2>
-            <div class="toy-meta">
-              <span class="meta-tag">Зображення: ✅ обкладинка</span>
-              <span class="meta-tag">Галерея: ${galleryCount} шт</span>
-              <span class="meta-tag">3D спін: ${spinCount > 0 ? '✅ є' : '❌ немає'}</span>
+          <div class="toy-header-main">
+            <img class="toy-thumbnail" src="${site.r2Url}/${id}/cover-480.webp" alt="${escapeHtml(title)}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'64\' height=\'64\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23475569\' stroke-width=\'2\'><rect x=\'3\' y=\'3\' width=\'18\' height=\'18\' rx=\'2\' ry=\'2\'/><circle cx=\'8.5\' cy=\'8.5\' r=\'1.5\'/><polyline points=\'21 15 16 10 5 21\'/></svg>';" />
+            <div class="toy-info">
+              <h2 class="toy-id">${escapeHtml(id)}</h2>
+              <div class="toy-meta">
+                <span class="meta-tag">Зображення: ✅ обкладинка</span>
+                <span class="meta-tag">Галерея: ${galleryCount} шт</span>
+                <span class="meta-tag">3D спін: ${spinCount > 0 ? '✅ є' : '❌ немає'}</span>
+              </div>
             </div>
           </div>
           <span class="status-badge ${statusClass}">${statusLabel}</span>
@@ -243,6 +246,21 @@ export function renderAdminHtml(
       padding-bottom: 1rem;
       gap: 1rem;
       flex-wrap: wrap;
+    }
+
+    .toy-header-main {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .toy-thumbnail {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border);
+      background-color: var(--bg-primary);
     }
 
     .toy-id { font-family: var(--font-title); font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
