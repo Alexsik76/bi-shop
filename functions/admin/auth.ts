@@ -75,7 +75,8 @@ export async function verifyJwt(
     }
 
     // Check audience
-    if (payload.aud !== expectedAud) {
+    const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+    if (!audArray.includes(expectedAud)) {
       console.error('JWT Verification: Audience mismatch. Expected:', expectedAud, 'Got:', payload.aud);
       return false;
     }
