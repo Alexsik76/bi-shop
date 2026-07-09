@@ -28,33 +28,42 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
   }
 
-  // 2. Fetch Toys List (manifest)
-  let toys: any[] = [];
+  // 2. Fetch all toy:* keys and read their records from KV
+  const toys: any[] = [];
   try {
-    const toysRes = await env.ASSETS.fetch(new URL('/toys.json', request.url));
-    if (toysRes.ok) {
-      toys = await toysRes.json();
-    } else {
-      console.error('Failed to fetch /toys.json:', toysRes.status);
+    const list = await env.TOYS_KV.list({ prefix: "toy:" });
+    for (const key of list.keys) {
+      const id = key.name.replace(/^toy:/, '');
+      let data: any = {};
+      try {
+        const record = await env.TOYS_KV.get(key.name);
+        if (record) {
+          data = JSON.parse(record);
+        }
+      } catch (err) {
+        console.error(`Error reading KV record for ${key.name}`, err);
+      }
+      toys.push({
+        id,
+        title: data.title || '',
+        price: data.price !== undefined ? data.price : '',
+        size: data.size || '',
+        materials: data.materials || '',
+        status: data.status || '',
+        description: data.description || '',
+        galleryCount: data.galleryCount !== undefined ? data.galleryCount : 0,
+        spinCount: data.spinCount !== undefined ? data.spinCount : 0,
+        updatedAt: data.updatedAt || ''
+      });
     }
   } catch (err) {
-    console.error('Error fetching /toys.json:', err);
+    console.error('Error listing KV keys:', err);
   }
+  
+  // Sort the list by ID ascending
+  toys.sort((a, b) => a.id.localeCompare(b.id));
 
-  // 3. Read KV Records for all toys
-  const kvRecords: Record<string, any> = {};
-  for (const toy of toys) {
-    try {
-      const record = await env.TOYS_KV.get(`toy:${toy.id}`);
-      if (record) {
-        kvRecords[toy.id] = JSON.parse(record);
-      }
-    } catch (err) {
-      console.error(`Error reading KV record for toy:${toy.id}`, err);
-    }
-  }
-
-  // 4. Branch by Method
+  // 3. Branch by Method
   if (request.method === 'POST') {
     let formData: FormData;
     try {
@@ -68,7 +77,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     const toyExists = toys.some(t => t.id === id);
     if (!toyExists) {
-      return new Response('Bad Request: Toy not found in manifest', { status: 400 });
+      return new Response('Bad Request: Toy not found in KV', { status: 400 });
     }
 
     if (action === 'delete') {
@@ -88,8 +97,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const materials = (formData.get('materials') as string || '').trim();
       const status = (formData.get('status') as string || '').trim();
       const description = (formData.get('description') as string || '');
-      const galleryCountRaw = (formData.get('galleryCount') as string || '0').trim();
-      const spinCountRaw = (formData.get('spinCount') as string || '0').trim();
 
       const errors: string[] = [];
       if (!title) {
@@ -120,18 +127,22 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         errors.push('Опис не повинен перевищувати 4000 символів.');
       }
 
-      const galleryCount = parseInt(galleryCountRaw, 10);
-      if (isNaN(galleryCount) || galleryCount < 0) {
-        errors.push('Кількість фото галереї повинна бути невід\'ємним цілим числом.');
-      }
-
-      const spinCount = parseInt(spinCountRaw, 10);
-      if (isNaN(spinCount) || spinCount < 0) {
-        errors.push('Кількість кадрів обертання повинна бути невід\'ємним цілим числом.');
+      // Load existing record to preserve galleryCount and spinCount
+      let existingGalleryCount = 0;
+      let existingSpinCount = 0;
+      try {
+        const existingRecord = await env.TOYS_KV.get(`toy:${id}`);
+        if (existingRecord) {
+          const parsed = JSON.parse(existingRecord);
+          existingGalleryCount = typeof parsed.galleryCount === 'number' ? parsed.galleryCount : 0;
+          existingSpinCount = typeof parsed.spinCount === 'number' ? parsed.spinCount : 0;
+        }
+      } catch (err) {
+        console.error(`Error loading existing record to preserve counts for ${id}:`, err);
       }
 
       if (errors.length > 0) {
-        const html = renderAdminHtml(toys, kvRecords, {
+        const html = renderAdminHtml(toys, {
           errors,
           toyId: id,
           submittedValues: {
@@ -141,8 +152,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             materials,
             status,
             description,
-            galleryCount: isNaN(galleryCount) ? galleryCountRaw : galleryCount,
-            spinCount: isNaN(spinCount) ? spinCountRaw : spinCount
+            galleryCount: existingGalleryCount,
+            spinCount: existingSpinCount
           }
         });
         return new Response(html, {
@@ -157,8 +168,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         materials,
         status,
         description,
-        galleryCount,
-        spinCount,
+        galleryCount: existingGalleryCount,
+        spinCount: existingSpinCount,
         updatedAt: new Date().toISOString()
       };
 
@@ -185,7 +196,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     };
   }
 
-  const html = renderAdminHtml(toys, kvRecords, feedback);
+  const html = renderAdminHtml(toys, feedback);
   return new Response(html, {
     headers: { 'Content-Type': 'text/html; charset=utf-8' }
   });

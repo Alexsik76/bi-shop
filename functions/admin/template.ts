@@ -23,15 +23,14 @@ export function isComplete(data: any): boolean {
 
 export function renderAdminHtml(
   toys: any[],
-  kvRecords: Record<string, any>,
   feedback?: { success?: string; errors?: string[]; toyId?: string; submittedValues?: any }
 ): string {
   const toysHtml = toys.map((toy) => {
     const id = toy.id;
     const isEditingThis = feedback && feedback.toyId === id && feedback.errors;
-    const currentData = isEditingThis ? feedback.submittedValues : (kvRecords[id] || {});
+    const currentData = isEditingThis ? feedback.submittedValues : toy;
     
-    const complete = isComplete(kvRecords[id]);
+    const complete = isComplete(toy);
     const statusLabel = complete ? 'Опубліковано' : 'Приховано';
     const statusClass = complete ? 'status-published' : 'status-hidden';
 
@@ -69,9 +68,9 @@ export function renderAdminHtml(
           <div class="toy-info">
             <h2 class="toy-id">${escapeHtml(id)}</h2>
             <div class="toy-meta">
-              <span class="meta-tag">Зображення: ${toy.hasCover ? '✅ обкладинка' : '❌ немає'}</span>
-              <span class="meta-tag">Галерея: ${toy.galleryCount} шт</span>
-              <span class="meta-tag">3D спін: ${toy.hasSpin ? '✅ є' : '❌ немає'}</span>
+              <span class="meta-tag">Зображення: ✅ обкладинка</span>
+              <span class="meta-tag">Галерея: ${galleryCount} шт</span>
+              <span class="meta-tag">3D спін: ${spinCount > 0 ? '✅ є' : '❌ немає'}</span>
             </div>
           </div>
           <span class="status-badge ${statusClass}">${statusLabel}</span>
@@ -121,13 +120,13 @@ export function renderAdminHtml(
             </div>
 
             <div class="form-group">
-              <label for="galleryCount-${escapeHtml(id)}">Кількість фото галереї</label>
-              <input type="number" id="galleryCount-${escapeHtml(id)}" name="galleryCount" value="${escapeHtml(String(galleryCount))}" min="0" step="1" placeholder="0">
+              <label for="galleryCount-${escapeHtml(id)}">Кількість фото галереї (тільки для читання)</label>
+              <input type="number" id="galleryCount-${escapeHtml(id)}" value="${escapeHtml(String(galleryCount))}" disabled>
             </div>
 
             <div class="form-group">
-              <label for="spinCount-${escapeHtml(id)}">Кількість кадрів обертання</label>
-              <input type="number" id="spinCount-${escapeHtml(id)}" name="spinCount" value="${escapeHtml(String(spinCount))}" min="0" step="1" placeholder="0">
+              <label for="spinCount-${escapeHtml(id)}">Кількість кадрів обертання (тільки для читання)</label>
+              <input type="number" id="spinCount-${escapeHtml(id)}" value="${escapeHtml(String(spinCount))}" disabled>
             </div>
           </div>
 
@@ -416,7 +415,7 @@ export function renderAdminHtml(
       </div>
     </header>
     <div class="global-info">
-      <span>ℹ️ Панель призначена для редагування динамічних властивостей іграшок. Список іграшок формується на основі контенту сайту.</span>
+      <span>ℹ️ Панель призначена для редагування динамічних властивостей іграшок. Список іграшок формується на основі бази даних KV.</span>
     </div>
     <main>
       ${toysHtml}
