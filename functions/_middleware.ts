@@ -67,6 +67,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
     const shellUrl = new URL('/igrashky/_toy/', request.url);
     const response = await context.env.ASSETS.fetch(shellUrl);
+    const canonicalUrl = new URL(`/igrashky/${toyId}/`, request.url).toString();
     
     // We prepare the dynamic description paragraphs
     const descHtml = formatDescription(toyData.description);
@@ -81,6 +82,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     let currentToyData = toyData;
 
     const rewriter = new HTMLRewriter()
+      .on('link[rel="canonical"]', {
+        element(element) {
+          element.setAttribute('href', canonicalUrl);
+        }
+      })
       .on('[data-kv="status"]', {
         element(element) {
           const status = currentToyData.status;
@@ -189,6 +195,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                     const lastItem = list[list.length - 1];
                     if (lastItem) {
                       lastItem.name = currentToyData.title;
+                      lastItem.item = canonicalUrl;
                     }
                   }
                 }
@@ -217,7 +224,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       })
       .on('meta[property="og:title"]', {
         element(element) {
-          element.setAttribute('content', `${escapeHtml(currentToyData.title)} —  Бабусині іграшки`);
+          element.setAttribute('content', `${escapeHtml(currentToyData.title)} — Бабусині іграшки`);
         }
       })
       .on('meta[name="twitter:title"]', {
