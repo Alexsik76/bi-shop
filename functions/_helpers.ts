@@ -229,3 +229,18 @@ export function getUkrainianPlural(n: number, one: string, two: string, five: st
   }
   return five;
 }
+
+/**
+ * Cleans a description string from multiple newlines and spaces, and truncates it to maxLen.
+ * Appends an ellipsis if truncated.
+ */
+export function getShortDescription(text: string | undefined | null, maxLen: number = 150): string {
+  if (!text) {
+    return '';
+  }
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLen) {
+    return clean;
+  }
+  return clean.slice(0, maxLen).trim() + '...';
+}

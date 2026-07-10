@@ -10,7 +10,8 @@ import {
   buildGalleryHtml,
   buildSpinHtml,
   buildCardHtml,
-  getUkrainianPlural
+  getUkrainianPlural,
+  getShortDescription
 } from './_helpers';
 
 interface Env {
@@ -77,6 +78,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const materialsText = toyData.materials ? `. Матеріали: ${toyData.materials}` : '';
     const priceText = priceFormatted ? `. Ціна ${priceFormatted} грн.` : '';
     const metaDesc = `${toyData.title} — м’яка іграшка ручної роботи${sizeText}${materialsText}${priceText}`;
+    const shortDesc = getShortDescription(toyData.description, 150);
+    const ogImageUrl = `${site.r2Url}/${toyId}/cover-960.webp`;
 
     let scriptContent = '';
     
@@ -267,12 +270,37 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       })
       .on('meta[property="og:description"]', {
         element(element) {
-          element.setAttribute('content', escapeHtml(metaDesc));
+          element.setAttribute('content', escapeHtml(shortDesc));
         }
       })
       .on('meta[name="twitter:description"]', {
         element(element) {
-          element.setAttribute('content', escapeHtml(metaDesc));
+          element.setAttribute('content', escapeHtml(shortDesc));
+        }
+      })
+      .on('meta[property="og:image"]', {
+        element(element) {
+          element.setAttribute('content', ogImageUrl);
+        }
+      })
+      .on('meta[name="twitter:image"]', {
+        element(element) {
+          element.setAttribute('content', ogImageUrl);
+        }
+      })
+      .on('meta[property="og:image:width"]', {
+        element(element) {
+          element.setAttribute('content', '960');
+        }
+      })
+      .on('meta[property="og:image:height"]', {
+        element(element) {
+          element.setAttribute('content', '960');
+        }
+      })
+      .on('meta[property="og:url"]', {
+        element(element) {
+          element.setAttribute('content', canonicalUrl);
         }
       });
 

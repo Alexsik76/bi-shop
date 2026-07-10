@@ -54,6 +54,8 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content={ogType === 'product' ? '960' : '1200'} />
+    <meta property="og:image:height" content={ogType === 'product' ? '960' : '630'} />
     <meta property="og:locale" content="uk_UA" />
 
     {ogType === 'product' && productPrice !== undefined && (
