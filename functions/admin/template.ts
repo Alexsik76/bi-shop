@@ -425,7 +425,7 @@ export function renderAdminHtml(
       background-color: transparent;
       border: 1px solid var(--accent);
       color: var(--accent);
-      margin-right: auto;
+      margin-right: 0.75rem;
       text-decoration: none;
     }
 
