@@ -147,7 +147,10 @@ babusyni-igrashky/
 │   │   └── igrashky/
 │   │       └── _toy/
 │   │           └── index.astro # єдиний загальний шаблон деталей іграшки (shell)
-│   └── styles/global.css      # змінні палітри й базові стилі
+│   └── styles/
+│       ├── global.css         # змінні палітри й базові стилі
+│       ├── catalog.css        # стилі сітки та карток каталогу
+│       └── product.css        # стилі сторінки деталей (галерея, 3D-спін)
 ├── public/
 │   ├── favicon.ico
 │   ├── favicon.svg
