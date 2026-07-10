@@ -5,9 +5,26 @@ const year = new Date().getFullYear();
 
 const contacts = [
   { label: 'Телефон', value: site.phoneDisplay, href: `tel:${site.phone}` },
-  { label: 'Telegram', value: `@${site.telegram}`, href: `https://t.me/${site.telegram}` },
-  { label: 'Viber', value: site.phoneDisplay, href: `viber://chat?number=${site.viber}` },
 ];
+
+if ('telegram' in site && site.telegram) {
+  const telegramVal = site.telegram as string;
+  const isPhone = telegramVal.startsWith('+') || /^\d+$/.test(telegramVal);
+  contacts.push({
+    label: 'Telegram',
+    value: isPhone ? site.phoneDisplay : `@${telegramVal}`,
+    href: `https://t.me/${telegramVal}`
+  });
+}
+
+if ('viber' in site && site.viber) {
+  const viberVal = site.viber as string;
+  contacts.push({
+    label: 'Viber',
+    value: site.phoneDisplay,
+    href: `viber://chat?number=${viberVal}`
+  });
+}
 ---
 
 <footer id="kontakty" class="site-footer">
