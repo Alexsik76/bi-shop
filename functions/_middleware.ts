@@ -9,7 +9,8 @@ import {
   formatDescription,
   buildGalleryHtml,
   buildSpinHtml,
-  buildCardHtml
+  buildCardHtml,
+  getUkrainianPlural
 } from './_helpers';
 
 interface Env {
@@ -112,6 +113,38 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       .on('[data-kv="materials"]', {
         element(element) {
           element.setInnerContent(escapeHtml(currentToyData.materials || ''));
+        }
+      })
+      .on('[data-row="workNumber"]', {
+        element(element) {
+          if (!currentToyData.workNumber) {
+            element.remove();
+          }
+        }
+      })
+      .on('[data-kv="workNumber"]', {
+        element(element) {
+          if (currentToyData.workNumber) {
+            element.setInnerContent(`№ ${escapeHtml(currentToyData.workNumber)}`);
+          }
+        }
+      })
+      .on('[data-row="workHours"]', {
+        element(element) {
+          const hours = currentToyData.workHours;
+          if (hours === undefined || hours === null || hours === '') {
+            element.remove();
+          }
+        }
+      })
+      .on('[data-kv="workHours"]', {
+        element(element) {
+          const hours = currentToyData.workHours;
+          if (hours !== undefined && hours !== null && hours !== '') {
+            const numHours = Number(hours);
+            const label = getUkrainianPlural(numHours, 'година', 'години', 'годин');
+            element.setInnerContent(`${numHours} ${label}`);
+          }
         }
       })
       .on('[data-kv="galleryCount"]', {
