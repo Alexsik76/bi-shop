@@ -230,11 +230,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     .passport-image-container {
-      width: 100%;
+      width: 54mm;
       height: 54mm;
       border-radius: 4px;
       overflow: hidden;
-      margin-bottom: 3mm;
+      margin: 0 auto 3mm;
       border: 1px solid #f1f5f9;
       z-index: 1;
     }

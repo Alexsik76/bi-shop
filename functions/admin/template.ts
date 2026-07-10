@@ -130,7 +130,7 @@ export function renderAdminHtml(
 
             <div class="form-group">
               <label for="finishedAt-${escapeHtml(id)}">Дата завершення</label>
-              <input type="date" id="finishedAt-${escapeHtml(id)}" name="finishedAt" value="${escapeHtml(finishedAt)}">
+              <input type="date" id="finishedAt-${escapeHtml(id)}" name="finishedAt" value="${escapeHtml(finishedAt)}" lang="uk">
             </div>
 
             <div class="form-group">
