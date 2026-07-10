@@ -1,0 +1,211 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../config';
+import '../../../styles/product.css';
+
+const absoluteCanonical = new URL(Astro.url.pathname, Astro.site || 'https://babusyni-igrashky.com.ua/').toString();
+
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "",
+  "image": [],
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "UAH",
+    "price": "",
+    "availability": "https://schema.org/InStock"
+  }
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Головна",
+      "item": Astro.site?.toString() ?? "https://babusyni-igrashky.com.ua/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "",
+      "item": absoluteCanonical
+    }
+  ]
+};
+
+const schemas = [productSchema, breadcrumbSchema];
+---
+
+<BaseLayout
+  title=""
+  description=""
+  ogType="product"
+  schema={schemas}
+>
+  <article class="section product">
+    <div class="container">
+      <span hidden data-kv="galleryCount"></span>
+      <span hidden data-kv="spinCount"></span>
+      <p class="crumbs"><a href="/#katalog">← До каталогу</a></p>
+
+      <div class="product-grid">
+        <div class="product-media">
+          <div id="dynamic-spin" data-alt=""></div>
+          <div class="product-gallery">
+            <div id="dynamic-gallery" data-alt=""></div>
+          </div>
+        </div>
+
+        <div class="product-info">
+          <span class="badge" data-kv="status"></span>
+          <h1 data-kv="title"></h1>
+          <p class="product-price"><span data-kv="price"></span> грн</p>
+
+          <dl class="specs">
+            <div><dt>Розмір</dt><dd data-kv="size"></dd></div>
+            <div><dt>Матеріали</dt><dd data-kv="materials"></dd></div>
+          </dl>
+
+          <div class="product-desc" data-kv="description">
+          </div>
+
+          <a class="btn btn-primary" href={`https://t.me/${site.telegram}`} target="_blank" rel="noopener noreferrer">Замовити цю іграшку</a>
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  // Gallery logic
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((gal) => {
+    const mains = gal.querySelectorAll<HTMLElement>('[data-main-img]');
+    const thumbs = gal.querySelectorAll<HTMLElement>('[data-thumb]');
+
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        const i = thumb.dataset.thumb;
+        mains.forEach((m) =>
+          m.classList.toggle('is-active', m.dataset.mainImg === i)
+        );
+        thumbs.forEach((t) =>
+          t.classList.toggle('is-active', t.dataset.thumb === i)
+        );
+      });
+    });
+  });
+
+  // Spin logic
+  function initSpin(el: HTMLElement) {
+    const urls = JSON.parse(el.dataset.urls || '[]') as string[];
+    const frames = urls.length;
+    if (frames === 0) return;
+
+    const img = el.querySelector<HTMLImageElement>('.spin-img')!;
+    const loader = el.querySelector<HTMLElement>('[data-loader]')!;
+    const hint = el.querySelector<HTMLElement>('[data-hint]')!;
+    const stage = el.querySelector<HTMLElement>('.spin-stage')!;
+
+    let loaded = 0;
+    let loadingStarted = false;
+    let dragging = false;
+    let startX = 0;
+    let startIndex = 0;
+    let interacted = false;
+    let index = 0;
+
+    const show = (i: number) => {
+      index = ((i % frames) + frames) % frames;
+      img.src = urls[index];
+    };
+
+    function startPreloading() {
+      if (loadingStarted) return;
+      loadingStarted = true;
+
+      loader.classList.add('is-loading');
+
+      urls.forEach((url) => {
+        const im = new Image();
+        im.onload = im.onerror = () => {
+          if (++loaded === frames) {
+            loader.classList.remove('is-loading');
+            loader.style.display = 'none';
+            show(0);
+          }
+        };
+        im.src = url;
+      });
+    }
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            startPreloading();
+            obs.unobserve(el);
+          }
+        });
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(el);
+
+    const begin = (x: number) => {
+      if (loaded < frames) return;
+      dragging = true;
+      startX = x;
+      startIndex = index;
+      if (!interacted) {
+        interacted = true;
+        hint.style.opacity = '0';
+      }
+    };
+    const move = (x: number) => {
+      if (!dragging) return;
+      const pxPerFrame = Math.max(4, stage.clientWidth / frames);
+      show(startIndex - Math.round((x - startX) / pxPerFrame));
+    };
+    const end = () => {
+      dragging = false;
+    };
+
+    stage.addEventListener('pointerdown', (e) => {
+      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+      begin(e.clientX);
+    });
+    stage.addEventListener('pointermove', (e) => move(e.clientX));
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    stage.addEventListener('pointerleave', end);
+
+    stage.addEventListener('keydown', (e) => {
+      if (loaded < frames) return;
+
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        show(index - 1);
+        if (!interacted) {
+          interacted = true;
+          hint.style.opacity = '0';
+        }
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        show(index + 1);
+        if (!interacted) {
+          interacted = true;
+          hint.style.opacity = '0';
+        }
+      }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-spin]').forEach(initSpin);
+</script>
+
+

@@ -1,0 +1,218 @@
+.crumbs {
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+.product-grid {
+  display: grid;
+  gap: 2rem;
+}
+.product-gallery {
+  margin-top: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+.badge-available {
+  background: #547c47;
+}
+.badge-made-to-order {
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+.badge-sold {
+  background: var(--color-muted);
+}
+
+.product-price {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--color-accent);
+  margin: 0 0 1.25rem;
+}
+
+.specs {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0 0 1.5rem;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+}
+.specs div {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: 0.5rem;
+}
+.specs dt {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+.specs dd {
+  margin: 0;
+}
+
+.product-desc {
+  margin-bottom: 1.5rem;
+}
+
+.sold-note {
+  background: color-mix(in srgb, var(--color-secondary) 18%, var(--color-bg));
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1.1rem;
+  color: var(--color-text);
+}
+
+/* Gallery Styles */
+.gallery-main {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.gallery-main img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.gallery-main img.is-active {
+  opacity: 1;
+}
+
+.gallery-thumbs {
+  display: flex;
+  gap: 0.6rem;
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  flex-wrap: wrap;
+}
+.thumb {
+  width: 68px;
+  height: 68px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--color-surface);
+  transition: border-color 0.15s ease;
+}
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumb.is-active {
+  border-color: var(--color-accent);
+}
+
+/* Spin Styles */
+.spin {
+  width: 100%;
+}
+.spin-stage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+.spin-stage:active {
+  cursor: grabbing;
+}
+.spin-stage:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+.spin-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.spin-loader {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  color: var(--color-text);
+  font-size: 0.8rem;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.spin-loader.is-loading {
+  opacity: 1;
+  visibility: visible;
+}
+.spin-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-line);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin-rotate 0.8s linear infinite;
+}
+@keyframes spin-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-hint {
+  position: absolute;
+  bottom: 0.9rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--color-text) 82%, transparent);
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin-spinner {
+    animation: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .product-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+}

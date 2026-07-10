@@ -1,52 +1,22 @@
+/// <reference types="@cloudflare/workers-types" />
 import { site } from '../src/config';
+import {
+  statusLabels,
+  statusClasses,
+  schemaAvailability,
+  isVisible,
+  escapeHtml,
+  formatDescription,
+  buildGalleryHtml,
+  buildSpinHtml,
+  buildCardHtml
+} from './_helpers';
 
 interface Env {
   TOYS_KV: KVNamespace;
-}
-
-const statusLabels: Record<string, string> = {
-  'available': 'В наявності',
-  'made-to-order': 'Під замовлення',
-  'sold': 'Продано',
-};
-
-const statusClasses: Record<string, string> = {
-  'available': 'badge badge-available',
-  'made-to-order': 'badge badge-made-to-order',
-  'sold': 'badge badge-sold',
-};
-
-const schemaAvailability: Record<string, string> = {
-  'available': 'https://schema.org/InStock',
-  'made-to-order': 'https://schema.org/PreOrder',
-  'sold': 'https://schema.org/SoldOut',
-};
-
-function isVisible(data: any): boolean {
-  if (!data) return false;
-  if (typeof data.title !== 'string' || data.title.trim() === '') return false;
-  if (typeof data.price !== 'number' || isNaN(data.price) || data.price <= 0) return false;
-  const validStatuses = ['available', 'made-to-order', 'sold'];
-  if (!validStatuses.includes(data.status)) return false;
-  return true;
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function formatDescription(desc: string | undefined | null): string {
-  if (!desc) return '';
-  const paragraphs = desc
-    .split(/\n/)
-    .map((p) => p.trim())
-    .filter((p) => p.length > 0);
-  return paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('');
+  ASSETS: {
+    fetch: typeof fetch;
+  };
 }
 
 export const onRequest: PagesFunction<Env> = async (context) => {
@@ -60,13 +30,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   const isListingPage = pathname === '/' || pathname === '/index.html';
   const detailMatch = pathname.match(/^\/igrashky\/([^\/]+)\/?(?:index\.html)?$/);
+  const isDetailPage = !!detailMatch && detailMatch[1] !== '_toy';
 
-  if (!isListingPage && !detailMatch) {
+  if (!isListingPage && !isDetailPage) {
     return context.next();
   }
 
-  if (detailMatch) {
-    const toyId = detailMatch[1];
+  if (isDetailPage) {
+    const toyId = detailMatch![1];
     let recordJson: string | null = null;
     try {
       recordJson = await context.env.TOYS_KV.get(`toy:${toyId}`);
@@ -94,7 +65,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       });
     }
 
-    const response = await context.next();
+    const shellUrl = new URL('/igrashky/_toy/', request.url);
+    const response = await context.env.ASSETS.fetch(shellUrl);
+    const canonicalUrl = new URL(`/igrashky/${toyId}/`, request.url).toString();
     
     // We prepare the dynamic description paragraphs
     const descHtml = formatDescription(toyData.description);
@@ -109,6 +82,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     let currentToyData = toyData;
 
     const rewriter = new HTMLRewriter()
+      .on('link[rel="canonical"]', {
+        element(element) {
+          element.setAttribute('href', canonicalUrl);
+        }
+      })
       .on('[data-kv="status"]', {
         element(element) {
           const status = currentToyData.status;
@@ -134,6 +112,32 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       .on('[data-kv="materials"]', {
         element(element) {
           element.setInnerContent(escapeHtml(currentToyData.materials || ''));
+        }
+      })
+      .on('[data-kv="galleryCount"]', {
+        element(element) {
+          const count = typeof currentToyData.galleryCount === 'number' ? currentToyData.galleryCount : 0;
+          element.setInnerContent(String(count));
+        }
+      })
+      .on('[data-kv="spinCount"]', {
+        element(element) {
+          const count = typeof currentToyData.spinCount === 'number' ? currentToyData.spinCount : 0;
+          element.setInnerContent(String(count));
+        }
+      })
+      .on('#dynamic-gallery', {
+        element(element) {
+          const alt = element.getAttribute('data-alt') || '';
+          const count = typeof currentToyData.galleryCount === 'number' ? currentToyData.galleryCount : 0;
+          element.setInnerContent(buildGalleryHtml(toyId, count, alt), { html: true });
+        }
+      })
+      .on('#dynamic-spin', {
+        element(element) {
+          const alt = element.getAttribute('data-alt') || '';
+          const count = typeof currentToyData.spinCount === 'number' ? currentToyData.spinCount : 0;
+          element.setInnerContent(buildSpinHtml(toyId, count, alt), { html: true });
         }
       })
       .on('[data-kv="description"]', {
@@ -191,6 +195,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
                     const lastItem = list[list.length - 1];
                     if (lastItem) {
                       lastItem.name = currentToyData.title;
+                      lastItem.item = canonicalUrl;
                     }
                   }
                 }
@@ -244,82 +249,47 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   if (isListingPage) {
     const response = await context.next();
     
-    let currentToyData: any = null;
-    let shouldRemoveCurrent = false;
+    let keys: any[] = [];
+    try {
+      const list = await context.env.TOYS_KV.list({ prefix: "toy:" });
+      keys = list.keys;
+    } catch (e) {
+      console.error("[Listing Middleware Error]: Failed to list KV keys", e);
+    }
+
+    const toys: { id: string; data: any }[] = [];
+    for (const key of keys) {
+      const toyId = key.name.replace(/^toy:/, '');
+      try {
+        const recordJson = await context.env.TOYS_KV.get(key.name);
+        if (recordJson) {
+          const data = JSON.parse(recordJson);
+          if (isVisible(data)) {
+            toys.push({ id: toyId, data });
+          }
+        }
+      } catch (e) {
+        console.error(`[Listing Middleware Error]: Failed to read KV record for ${key.name}`, e);
+      }
+    }
+
+    const statusOrder: Record<string, number> = {
+      'available': 0,
+      'made-to-order': 1,
+      'sold': 2,
+    };
+    toys.sort((a, b) => {
+      const orderA = statusOrder[a.data.status] ?? 999;
+      const orderB = statusOrder[b.data.status] ?? 999;
+      return orderA - orderB;
+    });
+
+    const cardsHtml = toys.map((t) => buildCardHtml(t.id, t.data)).join('\n');
 
     const rewriter = new HTMLRewriter()
-      .on('[data-toy-id]', {
-        async element(element) {
-          const toyId = element.getAttribute('data-toy-id');
-          if (!toyId) {
-            shouldRemoveCurrent = true;
-            element.remove();
-            return;
-          }
-
-          try {
-            const recordJson = await context.env.TOYS_KV.get(`toy:${toyId}`);
-            let data: any = null;
-            if (recordJson) {
-              data = JSON.parse(recordJson);
-            }
-
-            if (isVisible(data)) {
-              currentToyData = data;
-              shouldRemoveCurrent = false;
-
-              // Overwrite the card classes depending on status
-              const isSold = data.status === 'sold';
-              let classAttr = element.getAttribute("class") || "";
-              const classes = classAttr.split(/\s+/).filter(c => c !== "is-sold");
-              if (isSold) {
-                classes.push("is-sold");
-              }
-              element.setAttribute("class", classes.join(" "));
-            } else {
-              shouldRemoveCurrent = true;
-              element.remove();
-            }
-          } catch (e) {
-            shouldRemoveCurrent = true;
-            element.remove();
-          }
-        }
-      })
-      .on('.card-media', {
+      .on('#catalog-grid', {
         element(element) {
-          if (shouldRemoveCurrent || !currentToyData) return;
-          if (currentToyData.status === 'sold') {
-            element.append(`<span class="sold-overlay">${escapeHtml(site.statusNotes.soldOverlay)}</span>`, { html: true });
-          }
-        }
-      })
-      .on('.sold-overlay', {
-        element(element) {
-          if (shouldRemoveCurrent || !currentToyData || currentToyData.status !== 'sold') {
-            element.remove();
-          }
-        }
-      })
-      .on('[data-kv="status"]', {
-        element(element) {
-          if (shouldRemoveCurrent || !currentToyData) return;
-          const status = currentToyData.status;
-          element.setInnerContent(statusLabels[status] || '');
-          element.setAttribute('class', statusClasses[status] || '');
-        }
-      })
-      .on('[data-kv="title"]', {
-        element(element) {
-          if (shouldRemoveCurrent || !currentToyData) return;
-          element.setInnerContent(escapeHtml(currentToyData.title));
-        }
-      })
-      .on('[data-kv="price"]', {
-        element(element) {
-          if (shouldRemoveCurrent || !currentToyData) return;
-          const formatted = new Intl.NumberFormat('uk-UA').format(currentToyData.price);
-          element.setInnerContent(formatted);
+          element.setInnerContent(cardsHtml, { html: true });
         }
       });
 

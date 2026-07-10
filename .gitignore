@@ -11,9 +11,11 @@ node_modules/
 npm-debug.log*
 .env
 .env.production
+.dev.vars
 
 # тимчасові файли та документація розробки
 temp/
 docs/
-.wrangler/
 toy-*.json
+scratch/
+.wrangler/

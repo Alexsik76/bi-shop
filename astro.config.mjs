@@ -7,7 +7,22 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://babusyni-igrashky.com.ua',
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) => !page.includes('/igrashky/_toy'),
+    }),
+    {
+      name: 'inject-toy-shell',
+      hooks: {
+        'astro:config:setup': ({ injectRoute }) => {
+          injectRoute({
+            pattern: 'igrashky/_toy',
+            entrypoint: './src/pages/igrashky/_toy/index.astro'
+          });
+        }
+      }
+    }
+  ],
   image: {
     // Стискання зображень виконує вбудований у Astro sharp.
     responsiveStyles: true,
