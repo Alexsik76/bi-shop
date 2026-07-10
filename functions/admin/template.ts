@@ -48,6 +48,10 @@ export function renderAdminHtml(
     if (!finishedAt && !isEditingThis) {
       finishedAt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv' }).format(new Date());
     }
+    if (finishedAt && /^\d{4}-\d{2}-\d{2}$/.test(finishedAt)) {
+      const [y, m, d] = finishedAt.split('-');
+      finishedAt = `${d}.${m}.${y}`;
+    }
 
     const errorListHtml = isEditingThis && feedback.errors && feedback.errors.length > 0
       ? `<div class="error-banner">
@@ -130,7 +134,7 @@ export function renderAdminHtml(
 
             <div class="form-group">
               <label for="finishedAt-${escapeHtml(id)}">Дата завершення</label>
-              <input type="date" id="finishedAt-${escapeHtml(id)}" name="finishedAt" value="${escapeHtml(finishedAt)}" lang="uk">
+              <input type="text" id="finishedAt-${escapeHtml(id)}" name="finishedAt" value="${escapeHtml(finishedAt)}" placeholder="10.07.2026" pattern="\\d{2}\\.\\d{2}\\.\\d{4}">
             </div>
 
             <div class="form-group">

@@ -101,7 +101,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const status = (formData.get('status') as string || '').trim();
       const description = (formData.get('description') as string || '');
       const workNumber = (formData.get('workNumber') as string || '').trim();
-      const finishedAt = (formData.get('finishedAt') as string || '').trim();
+      const finishedAtRaw = (formData.get('finishedAt') as string || '').trim();
       const workHoursRaw = (formData.get('workHours') as string || '').trim();
 
       const errors: string[] = [];
@@ -137,8 +137,19 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         errors.push('Номер роботи повинен бути у форматі РРРР-ЧЧ (наприклад, 2026-14).');
       }
 
-      if (finishedAt && !/^\d{4}-\d{2}-\d{2}$/.test(finishedAt)) {
-        errors.push('Дата завершення повинна бути у форматі РРРР-ММ-ДД.');
+      let finishedAt = '';
+      if (finishedAtRaw) {
+        if (/^\d{2}\.\d{2}\.\d{4}$/.test(finishedAtRaw)) {
+          const [d, m, y] = finishedAtRaw.split('.');
+          const dateObj = new Date(`${y}-${m}-${d}`);
+          if (isNaN(dateObj.getTime())) {
+            errors.push('Дата завершення є недійсною календарною датою.');
+          } else {
+            finishedAt = `${y}-${m}-${d}`;
+          }
+        } else {
+          errors.push('Дата завершення повинна бути у форматі ДД.ММ.РРРР (наприклад, 10.07.2026).');
+        }
       }
 
       let workHours: number | undefined = undefined;
@@ -179,7 +190,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             galleryCount: existingGalleryCount,
             spinCount: existingSpinCount,
             workNumber,
-            finishedAt,
+            finishedAt: finishedAtRaw,
             workHours: workHoursRaw
           }
         });
