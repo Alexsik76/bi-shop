@@ -42,6 +42,16 @@ export function renderAdminHtml(
     const description = currentData.description || '';
     const galleryCount = currentData.galleryCount !== undefined ? currentData.galleryCount : 0;
     const spinCount = currentData.spinCount !== undefined ? currentData.spinCount : 0;
+    const workNumber = currentData.workNumber || '';
+    const workHours = currentData.workHours !== undefined ? currentData.workHours : '';
+    let finishedAt = currentData.finishedAt || '';
+    if (!finishedAt && !isEditingThis) {
+      finishedAt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Kyiv' }).format(new Date());
+    }
+    if (finishedAt && /^\d{4}-\d{2}-\d{2}$/.test(finishedAt)) {
+      const [y, m, d] = finishedAt.split('-');
+      finishedAt = `${d}.${m}.${y}`;
+    }
 
     const errorListHtml = isEditingThis && feedback.errors && feedback.errors.length > 0
       ? `<div class="error-banner">
@@ -117,6 +127,21 @@ export function renderAdminHtml(
               <input type="text" id="materials-${escapeHtml(id)}" name="materials" value="${escapeHtml(materials)}" placeholder="наприклад, напіввовна, холлофайбер">
             </div>
 
+            <div class="form-group">
+              <label for="workNumber-${escapeHtml(id)}">Номер роботи</label>
+              <input type="text" id="workNumber-${escapeHtml(id)}" name="workNumber" value="${escapeHtml(workNumber)}" placeholder="2026-14">
+            </div>
+
+            <div class="form-group">
+              <label for="finishedAt-${escapeHtml(id)}">Дата завершення</label>
+              <input type="text" id="finishedAt-${escapeHtml(id)}" name="finishedAt" value="${escapeHtml(finishedAt)}" placeholder="10.07.2026" pattern="\\d{2}\\.\\d{2}\\.\\d{4}">
+            </div>
+
+            <div class="form-group">
+              <label for="workHours-${escapeHtml(id)}">Годин роботи</label>
+              <input type="number" id="workHours-${escapeHtml(id)}" name="workHours" value="${escapeHtml(String(workHours))}" min="1" step="1" placeholder="годин роботи">
+            </div>
+
             <div class="form-group col-3">
               <label for="description-${escapeHtml(id)}">Опис іграшки (абзаци розділяються порожнім рядком або \\n)</label>
               <textarea id="description-${escapeHtml(id)}" name="description" rows="5" placeholder="Опис іграшки...">${escapeHtml(description)}</textarea>
@@ -134,6 +159,7 @@ export function renderAdminHtml(
           </div>
 
           <div class="form-actions">
+            <a href="/admin/passport/${escapeHtml(id)}" target="_blank" class="btn btn-passport">Паспорт</a>
             <button type="submit" class="btn btn-save">Зберегти</button>
           </div>
         </form>
@@ -398,6 +424,18 @@ export function renderAdminHtml(
     .btn-save { background-color: var(--accent); color: white; }
 
     .btn-save:hover { background-color: var(--accent-hover); }
+
+    .btn-passport {
+      background-color: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      margin-right: 0.75rem;
+      text-decoration: none;
+    }
+
+    .btn-passport:hover {
+      background-color: rgba(79, 70, 229, 0.1);
+    }
 
     .form-actions {
       display: flex;
