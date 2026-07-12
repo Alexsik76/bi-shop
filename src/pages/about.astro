@@ -2,6 +2,10 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import masterPhoto from '../assets/Master_Svitlana.jpg';
+import aboutPhoto1 from '../assets/about_1.jpg';
+import aboutPhoto2 from '../assets/about_2.jpg';
+import aboutPhoto3 from '../assets/about_3.jpg';
+import aboutPhoto4 from '../assets/about_4.jpg';
 ---
 
 <BaseLayout
@@ -16,7 +20,6 @@ import masterPhoto from '../assets/Master_Svitlana.jpg';
             src={masterPhoto}
             alt="Майстриня Світлана"
             width={480}
-            height={600}
             format="webp"
             quality={85}
           />
@@ -32,11 +35,18 @@ import masterPhoto from '../assets/Master_Svitlana.jpg';
           живуть у десятках домівок по всій Україні.
         </p>
         <p>
-          Я працюю тільки з натуральними та гіпоалергенними матеріалами, а кожен
+          Я працюю тільки з натуральними та гіпоалергенними матеріалами: альпака, меринос, кашемір, мохер, вовна, бавовна. Кожен
           виріб створюю з великою любов'ю та подвійним запасом міцності. Для мене важливо, щоб іграшка
           була не просто гарною, а безпечною й довговічною — такою, що передається
           від старшої дитини до молодшої.
         </p>
+
+        <div class="about-gallery">
+          <Image src={aboutPhoto1} alt="В'язані зайчики з натуральної пряжі" width={400} format="webp" quality={80} />
+          <Image src={aboutPhoto2} alt="Ведмедики та бобіни пряжі" width={400} format="webp" quality={80} />
+          <Image src={aboutPhoto3} alt="Лисенята з альпаки та мериносу" width={400} format="webp" quality={80} />
+          <Image src={aboutPhoto4} alt="Процес створення іграшок" width={400} format="webp" quality={80} />
+        </div>
         <ul class="about-facts">
           <li><strong>15+</strong> років досвіду</li>
           <li><strong>Натуральні</strong> матеріали</li>
@@ -65,7 +75,6 @@ import masterPhoto from '../assets/Master_Svitlana.jpg';
   }
   .frame {
     width: min(100%, 400px);
-    aspect-ratio: 4 / 5;
     background: var(--color-surface);
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
@@ -74,8 +83,8 @@ import masterPhoto from '../assets/Master_Svitlana.jpg';
   }
   .frame :global(img) {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    display: block;
   }
   .about-facts {
     list-style: none;
@@ -90,6 +99,19 @@ import masterPhoto from '../assets/Master_Svitlana.jpg';
   }
   .about-cta {
     margin-top: 2rem;
+  }
+  .about-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .about-gallery :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    display: block;
   }
 
   @media (min-width: 1024px) {
