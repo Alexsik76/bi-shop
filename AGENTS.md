@@ -21,7 +21,8 @@ A toy's entire truth is its KV record. **There is no `index.md`, no `src/content
 
 - **Toy registry = KV keys.** The set of toys is the set of keys with prefix `toy:` in `TOYS_KV`, obtained via `env.TOYS_KV.list({ prefix: "toy:" })`. The toy id is the key with the `toy:` prefix stripped (key `toy:vedmedyk-tymko` -> id `vedmedyk-tymko`). The id is a transliterated slug of the toy's name; there is no `toy-NN` counter and no `slug` field.
 - **KV record shape** (`toy:<id>`):
-  `{ title, price (number), size, materials, status, description, galleryCount (int), spinCount (int), updatedAt }`
+  `{ title, price (number), size, materials, status, description, galleryCount (int), spinCount (int), updatedAt, workNumber (string, optional), finishedAt (string, optional), workHours (number, optional) }`
+  `workNumber` format is "YYYY-NN" (e.g. "2026-14"). `finishedAt` format is ISO date "YYYY-MM-DD". `workHours` is a positive integer.
   `status` in `available | made-to-order | sold`. `description` is flat text; a blank line or `\n` separates paragraphs. The admin panel and the middleware must use this **exact same** shape. If you change it, change both.
 - **Images -> R2, addresses derived, never stored.** Given an id and the two counts, all addresses follow a fixed convention under `site.r2Url`:
   - cover (always exactly one): `<id>/cover-1600.webp`, `<id>/cover-960.webp`, `<id>/cover-480.webp`

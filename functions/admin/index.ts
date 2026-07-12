@@ -53,7 +53,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         description: data.description || '',
         galleryCount: data.galleryCount !== undefined ? data.galleryCount : 0,
         spinCount: data.spinCount !== undefined ? data.spinCount : 0,
-        updatedAt: data.updatedAt || ''
+        updatedAt: data.updatedAt || '',
+        workNumber: data.workNumber || '',
+        finishedAt: data.finishedAt || '',
+        workHours: data.workHours !== undefined ? data.workHours : ''
       });
     }
   } catch (err) {
@@ -97,6 +100,9 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       const materials = (formData.get('materials') as string || '').trim();
       const status = (formData.get('status') as string || '').trim();
       const description = (formData.get('description') as string || '');
+      const workNumber = (formData.get('workNumber') as string || '').trim();
+      const finishedAtRaw = (formData.get('finishedAt') as string || '').trim();
+      const workHoursRaw = (formData.get('workHours') as string || '').trim();
 
       const errors: string[] = [];
       if (!title) {
@@ -127,6 +133,35 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         errors.push('Опис не повинен перевищувати 4000 символів.');
       }
 
+      if (workNumber && !/^\d{4}-\d+$/.test(workNumber)) {
+        errors.push('Номер роботи повинен бути у форматі РРРР-ЧЧ (наприклад, 2026-14).');
+      }
+
+      let finishedAt = '';
+      if (finishedAtRaw) {
+        if (/^\d{2}\.\d{2}\.\d{4}$/.test(finishedAtRaw)) {
+          const [d, m, y] = finishedAtRaw.split('.');
+          const dateObj = new Date(`${y}-${m}-${d}`);
+          if (isNaN(dateObj.getTime())) {
+            errors.push('Дата завершення є недійсною календарною датою.');
+          } else {
+            finishedAt = `${y}-${m}-${d}`;
+          }
+        } else {
+          errors.push('Дата завершення повинна бути у форматі ДД.ММ.РРРР (наприклад, 10.07.2026).');
+        }
+      }
+
+      let workHours: number | undefined = undefined;
+      if (workHoursRaw) {
+        const parsedHours = parseInt(workHoursRaw, 10);
+        if (isNaN(parsedHours) || parsedHours < 1) {
+          errors.push('Годин роботи повинно бути цілим числом не менше 1.');
+        } else {
+          workHours = parsedHours;
+        }
+      }
+
       // Load existing record to preserve galleryCount and spinCount
       let existingGalleryCount = 0;
       let existingSpinCount = 0;
@@ -153,7 +188,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
             status,
             description,
             galleryCount: existingGalleryCount,
-            spinCount: existingSpinCount
+            spinCount: existingSpinCount,
+            workNumber,
+            finishedAt: finishedAtRaw,
+            workHours: workHoursRaw
           }
         });
         return new Response(html, {
@@ -170,7 +208,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         description,
         galleryCount: existingGalleryCount,
         spinCount: existingSpinCount,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        workNumber: workNumber || undefined,
+        finishedAt: finishedAt || undefined,
+        workHours: workHours !== undefined ? workHours : undefined,
       };
 
       try {

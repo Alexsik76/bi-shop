@@ -213,3 +213,34 @@ export function buildCardHtml(toyId: string, data: any): string {
 </article>
   `.trim();
 }
+
+/**
+ * Returns the correct Ukrainian plural form of a word based on the count.
+ * E.g., getUkrainianPlural(21, 'година', 'години', 'годин') -> 'година'
+ */
+export function getUkrainianPlural(n: number, one: string, two: string, five: string): string {
+  const n10 = n % 10;
+  const n100 = n % 100;
+  if (n10 === 1 && n100 !== 11) {
+    return one;
+  }
+  if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) {
+    return two;
+  }
+  return five;
+}
+
+/**
+ * Cleans a description string from multiple newlines and spaces, and truncates it to maxLen.
+ * Appends an ellipsis if truncated.
+ */
+export function getShortDescription(text: string | undefined | null, maxLen: number = 150): string {
+  if (!text) {
+    return '';
+  }
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLen) {
+    return clean;
+  }
+  return clean.slice(0, maxLen).trim() + '...';
+}
